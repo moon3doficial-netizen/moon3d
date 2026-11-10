@@ -89,7 +89,7 @@
       };
     }
 
-    /* Vendas: progresso do pedido e ordem dos status na listagem. */
+    /* Vendas: ordem fixa Produção, Finalizado, Entregue, Pago. */
     const salesStyle = document.createElement('style');
     salesStyle.textContent = `
       #data-table .moon3d-progress-cell { min-width: 112px; }
@@ -115,44 +115,43 @@
           const headRow = table.querySelector('thead tr');
           const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
           if (!headRow || !bodyRows.length) return result;
-          let headers = Array.from(headRow.children);
-          const indexOf = name => headers.findIndex(cell => normalizeColumnName(cell.textContent) === name);
-          if (indexOf('ordem') < 0) return result;
 
-          /* Move os três status para a ordem Finalizado, Entregue, Pago. */
-          const actionIndex = headers.length - 1;
-          const statusIndexes = ['finalizado', 'entregue', 'pago'].map(indexOf);
-          if (statusIndexes.every(i => i >= 0)) {
-            const actionHeader = headRow.lastElementChild;
-            statusIndexes.forEach(i => {
-              const cell = headers[i];
-              if (cell && cell !== actionHeader) headRow.insertBefore(cell, actionHeader);
-            });
-            bodyRows.forEach(row => {
-              const cells = Array.from(row.children);
-              const actionCell = row.lastElementChild;
-              statusIndexes.forEach(i => {
-                const cell = cells[i];
-                if (cell && cell !== actionCell) row.insertBefore(cell, actionCell);
-              });
-            });
-            headers = Array.from(headRow.children);
-          }
+          const headers = Array.from(headRow.children);
+          const findHeader = key => headers.find(cell => normalizeColumnName(cell.textContent).includes(key));
+          const finalHeader = findHeader('finalizado');
+          const deliveredHeader = findHeader('entregue');
+          const paidHeader = findHeader('pago');
+          const orderHeader = findHeader('ordem');
+          if (!orderHeader || !finalHeader || !deliveredHeader || !paidHeader) return result;
 
-          if (indexOf('producao') >= 0) return result;
-          const finalIndex = indexOf('finalizado');
-          if (finalIndex < 0) return result;
-          const productionHeader = document.createElement('th');
-          productionHeader.textContent = 'PRODUÇÃO';
-          headRow.insertBefore(productionHeader, headers[finalIndex]);
+          const actionHeader = headers[headers.length - 1];
+          const existingProgressHeader = findHeader('producao');
+          const progressHeader = existingProgressHeader || document.createElement('th');
+          progressHeader.textContent = 'PRODUÇÃO';
+
+          /* Mantém as demais colunas e fixa os quatro campos finais nesta ordem. */
+          const regularHeaders = headers.filter(cell =>
+            cell !== finalHeader &&
+            cell !== deliveredHeader &&
+            cell !== paidHeader &&
+            cell !== existingProgressHeader &&
+            cell !== actionHeader
+          );
+          const orderedHeaders = [...regularHeaders, progressHeader, finalHeader, deliveredHeader, paidHeader, actionHeader];
+          orderedHeaders.forEach(cell => headRow.appendChild(cell));
 
           bodyRows.forEach((row, recordIndex) => {
+            const oldCells = Array.from(row.children);
+            if (oldCells.length !== headers.length) return;
+            const cellFor = header => oldCells[headers.indexOf(header)];
             const sale = db.vendas[recordIndex];
             if (!sale) return;
-            const td = document.createElement('td');
-            td.className = 'moon3d-progress-cell';
+
+            let progressCell = existingProgressHeader ? cellFor(existingProgressHeader) : null;
+            if (!progressCell) progressCell = document.createElement('td');
+            progressCell.className = 'moon3d-progress-cell';
             const savedProgress = Math.min(100, Math.max(0, Number(sale.producao) || 0));
-            td.innerHTML =
+            progressCell.innerHTML =
               '<div class="moon3d-progress-control">' +
                 '<label class="moon3d-progress-input">' +
                   '<input type="number" min="0" max="100" step="1" inputmode="numeric" aria-label="Porcentagem de produção da ordem ' +
@@ -163,13 +162,14 @@
                   '<div class="moon3d-progress-fill" style="width:' + savedProgress + '%"></div>' +
                 '</div>' +
               '</div>';
-            const input = td.querySelector('input');
-            const fill = td.querySelector('.moon3d-progress-fill');
-            const track = td.querySelector('.moon3d-progress-track');
+
+            const input = progressCell.querySelector('input');
+            const fill = progressCell.querySelector('.moon3d-progress-fill');
+            const track = progressCell.querySelector('.moon3d-progress-track');
             input.addEventListener('input', () => {
-              const v = Math.min(100, Math.max(0, Number(input.value) || 0));
-              fill.style.width = v + '%';
-              track.setAttribute('aria-valuenow', String(v));
+              const value = Math.min(100, Math.max(0, Number(input.value) || 0));
+              fill.style.width = value + '%';
+              track.setAttribute('aria-valuenow', String(value));
             });
             input.addEventListener('change', () => {
               const next = input.value === '' ? 0 : Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
@@ -189,10 +189,19 @@
               sale.producao = next;
               save();
             });
-            row.insertBefore(td, row.children[finalIndex]);
+
+            const orderedCells = [
+              ...regularHeaders.map(cellFor),
+              progressCell,
+              cellFor(finalHeader),
+              cellFor(deliveredHeader),
+              cellFor(paidHeader),
+              cellFor(actionHeader)
+            ];
+            orderedCells.forEach(cell => { if (cell) row.appendChild(cell); });
           });
         } catch (err) {
-          console.error('Não foi possível atualizar a coluna de produção:', err);
+          console.error('Não foi possível ordenar os campos de produção e status:', err);
         }
         return result;
       };
