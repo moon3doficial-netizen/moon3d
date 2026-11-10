@@ -92,13 +92,14 @@
     /* Vendas: aplica a ordem diretamente na tabela sempre que ela for recriada. */
     const salesStyle = document.createElement('style');
     salesStyle.textContent = `
-      #data-table .moon3d-progress-cell { min-width: 112px; }
-      #data-table .moon3d-progress-control { display: grid; gap: 6px; min-width: 96px; }
-      #data-table .moon3d-progress-input { display: flex; align-items: center; gap: 5px; }
-      #data-table .moon3d-progress-input input { width: 58px; min-width: 58px; padding: 5px 6px; text-align: right; }
-      #data-table .moon3d-progress-input span { color: var(--muted); font-size: 12px; }
-      #data-table .moon3d-progress-track { height: 7px; width: 100%; min-width: 90px; overflow: hidden; border-radius: 20px; background: var(--border, #e5e7eb); }
-      #data-table .moon3d-progress-fill { height: 100%; border-radius: 20px; background: var(--accent, #80bc00); transition: width .2s ease; }
+      #data-table .moon3d-progress-cell { min-width: 132px; width: 132px; }
+      #data-table .moon3d-progress-control { display: grid; gap: 7px; min-width: 112px; }
+      #data-table .moon3d-progress-meta { display: flex; align-items: center; justify-content: flex-end; }
+      #data-table .moon3d-progress-value { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; padding: 3px 9px; border-radius: 999px; background: #eef6df; color: #4e7900; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; }
+      #data-table .moon3d-progress-slider { appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 8px; margin: 3px 0 5px; border: 0; border-radius: 999px; outline: none; cursor: pointer; background: linear-gradient(to right, #83bd18 0%, #83bd18 var(--progress, 0%), #e7ebdf var(--progress, 0%), #e7ebdf 100%); }
+      #data-table .moon3d-progress-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border: 3px solid #fff; border-radius: 50%; background: #70a900; box-shadow: 0 1px 4px rgba(0,0,0,.22); }
+      #data-table .moon3d-progress-slider::-moz-range-thumb { width: 11px; height: 11px; border: 3px solid #fff; border-radius: 50%; background: #70a900; box-shadow: 0 1px 4px rgba(0,0,0,.22); }
+      #data-table .moon3d-progress-slider:focus-visible { outline: 2px solid #70a900; outline-offset: 4px; }
     `;
     document.head.appendChild(salesStyle);
 
@@ -157,38 +158,27 @@
         progressCell.className = 'moon3d-progress-cell';
         progressCell.innerHTML =
           '<div class="moon3d-progress-control">' +
-            '<label class="moon3d-progress-input">' +
-              '<input type="number" min="0" max="100" step="1" inputmode="numeric" aria-label="Produção em porcentagem" value="' + progress + '">' +
-              '<span>%</span>' +
-            '</label>' +
-            '<div class="moon3d-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + progress + '">' +
-              '<div class="moon3d-progress-fill" style="width:' + progress + '%"></div>' +
+            '<div class="moon3d-progress-meta">' +
+              '<strong class="moon3d-progress-value">' + progress + '%</strong>' +
             '</div>' +
+            '<input class="moon3d-progress-slider" type="range" min="0" max="100" step="1" aria-label="Produção do pedido em porcentagem" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + progress + '" value="' + progress + '" style="--progress:' + progress + '%">' +
           '</div>';
 
-        const input = progressCell.querySelector('input');
-        const fill = progressCell.querySelector('.moon3d-progress-fill');
-        const track = progressCell.querySelector('.moon3d-progress-track');
+        const input = progressCell.querySelector('.moon3d-progress-slider');
+        const valueLabel = progressCell.querySelector('.moon3d-progress-value');
+        const updateProgressVisual = value => {
+          valueLabel.textContent = value + '%';
+          input.style.setProperty('--progress', value + '%');
+          input.setAttribute('aria-valuenow', String(value));
+        };
         input.addEventListener('input', () => {
-          const value = Math.min(100, Math.max(0, Number(input.value) || 0));
-          fill.style.width = value + '%';
-          track.setAttribute('aria-valuenow', String(value));
+          updateProgressVisual(Number(input.value));
         });
         input.addEventListener('change', () => {
-          const next = input.value === '' ? 0 : Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
+          const next = Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
           const previous = Math.min(100, Math.max(0, Number(sale.producao) || 0));
-          input.value = String(next);
-          if (next === previous) {
-            fill.style.width = next + '%';
-            track.setAttribute('aria-valuenow', String(next));
-            return;
-          }
-          if (!window.confirm('Confirma atualizar a produção da ordem ' + String(sale.ordem || '') + ' para ' + next + '%?')) {
-            input.value = String(previous);
-            fill.style.width = previous + '%';
-            track.setAttribute('aria-valuenow', String(previous));
-            return;
-          }
+          updateProgressVisual(next);
+          if (next === previous) return;
           sale.producao = next;
           save();
         });
