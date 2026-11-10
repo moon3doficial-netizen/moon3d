@@ -107,3 +107,8 @@ tr:hover td{background:#fbfdf6}
   .form-grid,.settings-grid{grid-template-columns:1fr}
   .field.full{grid-column:auto}
 }
+
+/* Dashboard: três indicadores após retirar o cartão duplicado de compras. */
+.dashboard-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1050px){.dashboard-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
