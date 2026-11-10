@@ -349,7 +349,7 @@
 
     /* Layout mobile reorganizado: navegação inferior, conteúdo em coluna e controles maiores. */
     const mobileLayoutStyle = document.createElement('style');
-    mobileLayoutStyle.textContent = \`
+    mobileLayoutStyle.textContent = `
       @media (max-width: 700px) {
         html, body { width: 100%; min-height: 100%; overflow-x: hidden; }
         body { display: block; padding-bottom: calc(72px + env(safe-area-inset-bottom)); -webkit-text-size-adjust: 100%; }
@@ -452,7 +452,7 @@
         .modal-actions { gap: 7px; }
         .modal-actions .btn { padding: 9px 8px; font-size: 11px; }
       }
-    \`;
+    `;
     document.head.appendChild(mobileLayoutStyle);
 
     const salesTableObserver = new MutationObserver(() => {
