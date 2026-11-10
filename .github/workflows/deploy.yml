@@ -20,14 +20,8 @@ jobs:
     steps:
       - name: Baixar arquivos
         uses: actions/checkout@v4
-      - name: Preparar código para inspeção
-        run: gzip -dc app.js.gz > app-inspect.js
-      - name: Guardar código para inspeção
-        uses: actions/upload-artifact@v4
-        with:
-          name: moon3d-app-inspect
-          path: app-inspect.js
-          retention-days: 1
+      - name: Validar arquivos compactados
+        run: gzip -t app.js.gz styles.css.gz
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
       - name: Preparar site
