@@ -216,10 +216,12 @@
         });
         toolbar.appendChild(toggle);
       }
-      toggle.textContent = hidePaidAndDeliveredOrders
+      const toggleLabel = hidePaidAndDeliveredOrders
         ? 'Mostrar todos os pedidos'
         : 'Ocultar pedidos pagos e entregues';
-      toggle.setAttribute('aria-pressed', String(hidePaidAndDeliveredOrders));
+      if (toggle.textContent !== toggleLabel) toggle.textContent = toggleLabel;
+      const pressed = String(hidePaidAndDeliveredOrders);
+      if (toggle.getAttribute('aria-pressed') !== pressed) toggle.setAttribute('aria-pressed', pressed);
 
       const table = document.querySelector('#data-table');
       if (!table) return;
