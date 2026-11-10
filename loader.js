@@ -88,6 +88,116 @@
         return result;
       };
     }
+
+    /* Vendas: progresso do pedido e ordem dos status na listagem. */
+    const salesStyle = document.createElement('style');
+    salesStyle.textContent = `
+      #data-table .moon3d-progress-cell { min-width: 112px; }
+      #data-table .moon3d-progress-control { display: grid; gap: 6px; min-width: 96px; }
+      #data-table .moon3d-progress-input { display: flex; align-items: center; gap: 5px; }
+      #data-table .moon3d-progress-input input { width: 58px; min-width: 58px; padding: 5px 6px; text-align: right; }
+      #data-table .moon3d-progress-input span { color: var(--muted); font-size: 12px; }
+      #data-table .moon3d-progress-track { height: 7px; width: 100%; min-width: 90px; overflow: hidden; border-radius: 20px; background: var(--border, #e5e7eb); }
+      #data-table .moon3d-progress-fill { height: 100%; border-radius: 20px; background: var(--accent, #80bc00); transition: width .2s ease; }
+    `;
+    document.head.appendChild(salesStyle);
+
+    const normalizeColumnName = value => String(value || '')
+      .toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+    const originalRenderForProduction = window.render;
+    if (typeof originalRenderForProduction === 'function') {
+      window.render = function () {
+        const result = originalRenderForProduction.apply(this, arguments);
+        try {
+          const table = document.querySelector('#data-table');
+          if (!table) return result;
+          const headRow = table.querySelector('thead tr');
+          const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
+          if (!headRow || !bodyRows.length) return result;
+          let headers = Array.from(headRow.children);
+          const indexOf = name => headers.findIndex(cell => normalizeColumnName(cell.textContent) === name);
+          if (indexOf('ordem') < 0) return result;
+
+          /* Move os três status para a ordem Finalizado, Entregue, Pago. */
+          const actionIndex = headers.length - 1;
+          const statusIndexes = ['finalizado', 'entregue', 'pago'].map(indexOf);
+          if (statusIndexes.every(i => i >= 0)) {
+            const actionHeader = headRow.lastElementChild;
+            statusIndexes.forEach(i => {
+              const cell = headers[i];
+              if (cell && cell !== actionHeader) headRow.insertBefore(cell, actionHeader);
+            });
+            bodyRows.forEach(row => {
+              const cells = Array.from(row.children);
+              const actionCell = row.lastElementChild;
+              statusIndexes.forEach(i => {
+                const cell = cells[i];
+                if (cell && cell !== actionCell) row.insertBefore(cell, actionCell);
+              });
+            });
+            headers = Array.from(headRow.children);
+          }
+
+          if (indexOf('producao') >= 0) return result;
+          const finalIndex = indexOf('finalizado');
+          if (finalIndex < 0) return result;
+          const productionHeader = document.createElement('th');
+          productionHeader.textContent = 'PRODUÇÃO';
+          headRow.insertBefore(productionHeader, headers[finalIndex]);
+
+          bodyRows.forEach((row, recordIndex) => {
+            const sale = db.vendas[recordIndex];
+            if (!sale) return;
+            const td = document.createElement('td');
+            td.className = 'moon3d-progress-cell';
+            const savedProgress = Math.min(100, Math.max(0, Number(sale.producao) || 0));
+            td.innerHTML =
+              '<div class="moon3d-progress-control">' +
+                '<label class="moon3d-progress-input">' +
+                  '<input type="number" min="0" max="100" step="1" inputmode="numeric" aria-label="Porcentagem de produção da ordem ' +
+                  String(sale.ordem || '') + '" value="' + savedProgress + '">' +
+                  '<span>%</span>' +
+                '</label>' +
+                '<div class="moon3d-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + savedProgress + '">' +
+                  '<div class="moon3d-progress-fill" style="width:' + savedProgress + '%"></div>' +
+                '</div>' +
+              '</div>';
+            const input = td.querySelector('input');
+            const fill = td.querySelector('.moon3d-progress-fill');
+            const track = td.querySelector('.moon3d-progress-track');
+            input.addEventListener('input', () => {
+              const v = Math.min(100, Math.max(0, Number(input.value) || 0));
+              fill.style.width = v + '%';
+              track.setAttribute('aria-valuenow', String(v));
+            });
+            input.addEventListener('change', () => {
+              const next = input.value === '' ? 0 : Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
+              const before = Math.min(100, Math.max(0, Number(sale.producao) || 0));
+              input.value = String(next);
+              if (next === before) {
+                fill.style.width = next + '%';
+                track.setAttribute('aria-valuenow', String(next));
+                return;
+              }
+              if (!window.confirm('Confirma atualizar a produção da ordem ' + String(sale.ordem || '') + ' para ' + next + '%?')) {
+                input.value = String(before);
+                fill.style.width = before + '%';
+                track.setAttribute('aria-valuenow', String(before));
+                return;
+              }
+              sale.producao = next;
+              save();
+            });
+            const rowFinalIndex = Array.from(row.children).findIndex(cell => normalizeColumnName(cell.textContent) === 'finalizado');
+            row.insertBefore(td, row.children[rowFinalIndex]);
+          });
+        } catch (err) {
+          console.error('Não foi possível atualizar a coluna de produção:', err);
+        }
+        return result;
+      };
+    }
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
