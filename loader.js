@@ -89,7 +89,7 @@
       };
     }
 
-    /* Vendas: ordem fixa Produção, Finalizado, Entregue, Pago. */
+    /* Vendas: aplica a ordem diretamente na tabela sempre que ela for recriada. */
     const salesStyle = document.createElement('style');
     salesStyle.textContent = `
       #data-table .moon3d-progress-cell { min-width: 112px; }
@@ -102,110 +102,114 @@
     `;
     document.head.appendChild(salesStyle);
 
-    const normalizeColumnName = value => String(value || '')
+    const normalizeSalesHeader = value => String(value || '')
       .toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
       .replace(/[^a-z0-9]/g, '');
-    const originalRenderForProduction = window.render;
-    if (typeof originalRenderForProduction === 'function') {
-      window.render = function () {
-        const result = originalRenderForProduction.apply(this, arguments);
-        try {
-          const table = document.querySelector('#data-table');
-          if (!table) return result;
-          const headRow = table.querySelector('thead tr');
-          const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
-          if (!headRow || !bodyRows.length) return result;
 
-          const headers = Array.from(headRow.children);
-          const findHeader = key => headers.find(cell => normalizeColumnName(cell.textContent).includes(key));
-          const finalHeader = findHeader('finalizado');
-          const deliveredHeader = findHeader('entregue');
-          const paidHeader = findHeader('pago');
-          const orderHeader = findHeader('ordem');
-          if (!orderHeader || !finalHeader || !deliveredHeader || !paidHeader) return result;
+    const applyMoon3DSalesOrder = () => {
+      const table = document.querySelector('#data-table');
+      if (!table || table.dataset.moon3dSalesOrder === 'done') return;
+      const headRow = table.querySelector('thead tr');
+      if (!headRow) return;
 
-          const actionHeader = headers[headers.length - 1];
-          const existingProgressHeader = findHeader('producao');
-          const progressHeader = existingProgressHeader || document.createElement('th');
-          progressHeader.textContent = 'PRODUÇÃO';
+      const headers = Array.from(headRow.children);
+      const findHeader = key => headers.find(cell => normalizeSalesHeader(cell.textContent).includes(key));
+      const finalHeader = findHeader('finalizado');
+      const deliveredHeader = findHeader('entregue');
+      const paidHeader = findHeader('pago');
+      const orderHeader = findHeader('ordem');
+      if (!orderHeader || !finalHeader || !deliveredHeader || !paidHeader) return;
 
-          /* Mantém as demais colunas e fixa os quatro campos finais nesta ordem. */
-          const regularHeaders = headers.filter(cell =>
-            cell !== finalHeader &&
-            cell !== deliveredHeader &&
-            cell !== paidHeader &&
-            cell !== existingProgressHeader &&
-            cell !== actionHeader
-          );
-          const orderedHeaders = [...regularHeaders, progressHeader, finalHeader, deliveredHeader, paidHeader, actionHeader];
-          orderedHeaders.forEach(cell => headRow.appendChild(cell));
+      const actionHeader = findHeader('acoes') || headers[headers.length - 1];
+      const oldProgressHeader = findHeader('producao');
+      const progressHeader = oldProgressHeader || document.createElement('th');
+      progressHeader.textContent = 'PRODUÇÃO (%)';
 
-          bodyRows.forEach((row, recordIndex) => {
-            const oldCells = Array.from(row.children);
-            if (oldCells.length !== headers.length) return;
-            const cellFor = header => oldCells[headers.indexOf(header)];
-            const sale = db.vendas[recordIndex];
-            if (!sale) return;
+      const regularHeaders = headers.filter(cell =>
+        cell !== finalHeader &&
+        cell !== deliveredHeader &&
+        cell !== paidHeader &&
+        cell !== oldProgressHeader &&
+        cell !== actionHeader
+      );
+      const orderedHeaders = [
+        ...regularHeaders,
+        progressHeader,
+        finalHeader,
+        deliveredHeader,
+        paidHeader,
+        actionHeader
+      ];
+      orderedHeaders.forEach(cell => headRow.appendChild(cell));
 
-            let progressCell = existingProgressHeader ? cellFor(existingProgressHeader) : null;
-            if (!progressCell) progressCell = document.createElement('td');
-            progressCell.className = 'moon3d-progress-cell';
-            const savedProgress = Math.min(100, Math.max(0, Number(sale.producao) || 0));
-            progressCell.innerHTML =
-              '<div class="moon3d-progress-control">' +
-                '<label class="moon3d-progress-input">' +
-                  '<input type="number" min="0" max="100" step="1" inputmode="numeric" aria-label="Porcentagem de produção da ordem ' +
-                  String(sale.ordem || '') + '" value="' + savedProgress + '">' +
-                  '<span>%</span>' +
-                '</label>' +
-                '<div class="moon3d-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + savedProgress + '">' +
-                  '<div class="moon3d-progress-fill" style="width:' + savedProgress + '%"></div>' +
-                '</div>' +
-              '</div>';
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      rows.forEach((row, rowIndex) => {
+        const oldCells = Array.from(row.children);
+        if (oldCells.length !== headers.length) return;
+        const cellFor = header => oldCells[headers.indexOf(header)];
+        const orderCell = cellFor(orderHeader);
+        const orderNumber = orderCell ? orderCell.textContent.trim() : '';
+        const sale = db.vendas.find(item => String(item.ordem) === orderNumber) || db.vendas[rowIndex];
+        if (!sale) return;
 
-            const input = progressCell.querySelector('input');
-            const fill = progressCell.querySelector('.moon3d-progress-fill');
-            const track = progressCell.querySelector('.moon3d-progress-track');
-            input.addEventListener('input', () => {
-              const value = Math.min(100, Math.max(0, Number(input.value) || 0));
-              fill.style.width = value + '%';
-              track.setAttribute('aria-valuenow', String(value));
-            });
-            input.addEventListener('change', () => {
-              const next = input.value === '' ? 0 : Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
-              const before = Math.min(100, Math.max(0, Number(sale.producao) || 0));
-              input.value = String(next);
-              if (next === before) {
-                fill.style.width = next + '%';
-                track.setAttribute('aria-valuenow', String(next));
-                return;
-              }
-              if (!window.confirm('Confirma atualizar a produção da ordem ' + String(sale.ordem || '') + ' para ' + next + '%?')) {
-                input.value = String(before);
-                fill.style.width = before + '%';
-                track.setAttribute('aria-valuenow', String(before));
-                return;
-              }
-              sale.producao = next;
-              save();
-            });
+        const progressCell = oldProgressHeader ? cellFor(oldProgressHeader) : document.createElement('td');
+        const progress = Math.min(100, Math.max(0, Number(sale.producao) || 0));
+        progressCell.className = 'moon3d-progress-cell';
+        progressCell.innerHTML =
+          '<div class="moon3d-progress-control">' +
+            '<label class="moon3d-progress-input">' +
+              '<input type="number" min="0" max="100" step="1" inputmode="numeric" aria-label="Produção em porcentagem" value="' + progress + '">' +
+              '<span>%</span>' +
+            '</label>' +
+            '<div class="moon3d-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + progress + '">' +
+              '<div class="moon3d-progress-fill" style="width:' + progress + '%"></div>' +
+            '</div>' +
+          '</div>';
 
-            const orderedCells = [
-              ...regularHeaders.map(cellFor),
-              progressCell,
-              cellFor(finalHeader),
-              cellFor(deliveredHeader),
-              cellFor(paidHeader),
-              cellFor(actionHeader)
-            ];
-            orderedCells.forEach(cell => { if (cell) row.appendChild(cell); });
-          });
-        } catch (err) {
-          console.error('Não foi possível ordenar os campos de produção e status:', err);
-        }
-        return result;
-      };
-    }
+        const input = progressCell.querySelector('input');
+        const fill = progressCell.querySelector('.moon3d-progress-fill');
+        const track = progressCell.querySelector('.moon3d-progress-track');
+        input.addEventListener('input', () => {
+          const value = Math.min(100, Math.max(0, Number(input.value) || 0));
+          fill.style.width = value + '%';
+          track.setAttribute('aria-valuenow', String(value));
+        });
+        input.addEventListener('change', () => {
+          const next = input.value === '' ? 0 : Math.min(100, Math.max(0, Math.round(Number(input.value) || 0)));
+          const previous = Math.min(100, Math.max(0, Number(sale.producao) || 0));
+          input.value = String(next);
+          if (next === previous) {
+            fill.style.width = next + '%';
+            track.setAttribute('aria-valuenow', String(next));
+            return;
+          }
+          if (!window.confirm('Confirma atualizar a produção da ordem ' + String(sale.ordem || '') + ' para ' + next + '%?')) {
+            input.value = String(previous);
+            fill.style.width = previous + '%';
+            track.setAttribute('aria-valuenow', String(previous));
+            return;
+          }
+          sale.producao = next;
+          save();
+        });
+
+        [
+          ...regularHeaders.map(cellFor),
+          progressCell,
+          cellFor(finalHeader),
+          cellFor(deliveredHeader),
+          cellFor(paidHeader),
+          cellFor(actionHeader)
+        ].filter(Boolean).forEach(cell => row.appendChild(cell));
+      });
+
+      table.dataset.moon3dSalesOrder = 'done';
+    };
+
+    /* A listagem é recriada pelo aplicativo ao salvar e filtrar; observa cada nova tabela. */
+    const salesTableObserver = new MutationObserver(() => applyMoon3DSalesOrder());
+    salesTableObserver.observe(document.body, { childList: true, subtree: true });
+    applyMoon3DSalesOrder();
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
