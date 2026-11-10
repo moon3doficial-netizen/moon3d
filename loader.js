@@ -108,6 +108,8 @@
       .replace(/[^a-z0-9]/g, '');
 
     const applyMoon3DSalesOrder = () => {
+      const activePage = document.querySelector('#page-title')?.textContent.trim();
+      if (activePage !== 'Vendas') return;
       const table = document.querySelector('#data-table');
       if (!table || table.dataset.moon3dSalesOrder === 'done') return;
       const headRow = table.querySelector('thead tr');
@@ -201,8 +203,11 @@
     let hidePaidAndDeliveredOrders = false;
     const updatePaidDeliveredVisibility = () => {
       const pageTitle = document.querySelector('#page-title');
-      if (!pageTitle || pageTitle.textContent.trim() !== 'Vendas') return;
       const toolbar = document.querySelector('.toolbar');
+      if (!pageTitle || pageTitle.textContent.trim() !== 'Vendas') {
+        toolbar?.querySelector('.moon3d-toggle-completed')?.remove();
+        return;
+      }
       if (!toolbar) return;
 
       let toggle = toolbar.querySelector('.moon3d-toggle-completed');
@@ -242,13 +247,42 @@
       }
     `;
 
+    const applyMoon3DQuoteLayout = () => {
+      const pageTitle = document.querySelector('#page-title');
+      if (!pageTitle || pageTitle.textContent.trim() !== 'Orçamentos') return;
+
+      const table = document.querySelector('#data-table');
+      if (!table) return;
+      const headerRow = table.querySelector('thead tr');
+      if (!headerRow) return;
+
+      const headers = Array.from(headerRow.children);
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      const statusColumns = headers
+        .map((cell, index) => ({ cell, index, name: normalizeSalesHeader(cell.textContent) }))
+        .filter(item => ['producao', 'finalizado', 'entregue', 'pago'].some(key => item.name.includes(key)));
+
+      statusColumns.forEach(({cell, index}) => {
+        cell.style.display = 'none';
+        rows.forEach(row => {
+          const matchingCell = row.children[index];
+          if (matchingCell) matchingCell.style.display = 'none';
+        });
+      });
+
+      const toolbar = document.querySelector('.toolbar');
+      toolbar?.querySelector('.moon3d-toggle-completed')?.remove();
+    };
+
     const salesTableObserver = new MutationObserver(() => {
       applyMoon3DSalesOrder();
       updatePaidDeliveredVisibility();
+      applyMoon3DQuoteLayout();
     });
-    salesTableObserver.observe(document.body, { childList: true, subtree: true });
+    salesTableObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
     applyMoon3DSalesOrder();
     updatePaidDeliveredVisibility();
+    applyMoon3DQuoteLayout();
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
