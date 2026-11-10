@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10110d">
+  <meta name="description" content="Moon3D — gestão financeira de impressão 3D">
+  <title>Moon3D | Gestão</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="auth-root" class="auth-root" hidden></section>
+  <div id="workspace" class="workspace" hidden>
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="logo-moon3d-marca.jpg" alt="Marca Moon3D">
+        <div><strong>MOON<span>3D</span></strong><small>IMPRESSÕES PERSONALIZADAS</small></div>
+      </div>
+      <div class="nav-label">MENU PRINCIPAL</div>
+      <nav id="nav">
+        <button class="nav-item active" data-page="dashboard"><b>▦</b> Dashboard</button>
+        <button class="nav-item" data-page="compras"><b>↘</b> Compras</button>
+        <button class="nav-item" data-page="vendas"><b>↗</b> Vendas</button>
+        <button class="nav-item" data-page="orcamentos"><b>▤</b> Orçamentos</button>
+        <div class="nav-label sub-label">CADASTROS</div>
+        <button class="nav-item" data-page="produtos"><b>⬡</b> Produtos padrões</button>
+        <button class="nav-item" data-page="adicionais"><b>＋</b> Itens adicionais</button>
+        <button class="nav-item" data-page="configuracoes"><b>⚙</b> Configurações</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="status-dot" id="connection-dot"></div><span id="connection-label">Demonstração local</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">MOON3D / <span id="crumb">VISÃO GERAL</span></div><h1 id="page-title">Dashboard</h1></div>
+        <div class="top-actions"><span class="today" id="today"></span><button class="btn secondary logout-btn" onclick="logout()">Sair</button><div class="avatar">M</div></div>
+      </header>
+      <section id="app" class="content"></section>
+      <footer>MOON3D <span>•</span> Impressões personalizadas</footer>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast" class="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
