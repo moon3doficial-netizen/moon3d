@@ -94,7 +94,7 @@
     salesStyle.textContent = `
       #data-table .moon3d-progress-cell { min-width: 132px; width: 132px; }
       #data-table .moon3d-progress-control { display: grid; gap: 7px; min-width: 112px; }
-      #data-table .moon3d-progress-meta { display: flex; align-items: center; justify-content: flex-end; }
+      #data-table .moon3d-progress-meta { display: flex; align-items: center; justify-content: center; text-align: center; }
       #data-table .moon3d-progress-value { display: inline-flex; align-items: center; justify-content: center; min-width: 46px; padding: 3px 9px; border-radius: 999px; background: #eef6df; color: #4e7900; font-size: 12px; font-weight: 750; font-variant-numeric: tabular-nums; }
       #data-table .moon3d-progress-slider { appearance: none; -webkit-appearance: none; display: block; width: 100%; height: 8px; margin: 3px 0 5px; border: 0; border-radius: 999px; outline: none; cursor: pointer; background: linear-gradient(to right, #83bd18 0%, #83bd18 var(--progress, 0%), #e7ebdf var(--progress, 0%), #e7ebdf 100%); }
       #data-table .moon3d-progress-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border: 3px solid #fff; border-radius: 50%; background: #70a900; box-shadow: 0 1px 4px rgba(0,0,0,.22); }
@@ -197,9 +197,56 @@
     };
 
     /* A listagem é recriada pelo aplicativo ao salvar e filtrar; observa cada nova tabela. */
-    const salesTableObserver = new MutationObserver(() => applyMoon3DSalesOrder());
+
+    let hidePaidAndDeliveredOrders = false;
+    const updatePaidDeliveredVisibility = () => {
+      const pageTitle = document.querySelector('#page-title');
+      if (!pageTitle || pageTitle.textContent.trim() !== 'Vendas') return;
+      const toolbar = document.querySelector('.toolbar');
+      if (!toolbar) return;
+
+      let toggle = toolbar.querySelector('.moon3d-toggle-completed');
+      if (!toggle) {
+        toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'btn secondary moon3d-toggle-completed';
+        toggle.addEventListener('click', () => {
+          hidePaidAndDeliveredOrders = !hidePaidAndDeliveredOrders;
+          updatePaidDeliveredVisibility();
+        });
+        toolbar.appendChild(toggle);
+      }
+      toggle.textContent = hidePaidAndDeliveredOrders
+        ? 'Mostrar todos os pedidos'
+        : 'Ocultar pedidos pagos e entregues';
+      toggle.setAttribute('aria-pressed', String(hidePaidAndDeliveredOrders));
+
+      const table = document.querySelector('#data-table');
+      if (!table) return;
+      Array.from(table.querySelectorAll('tbody tr')).forEach((row, rowIndex) => {
+        const orderNumber = row.children[0]?.textContent.trim() || '';
+        const sale = db.vendas.find(item => String(item.ordem) === orderNumber) || db.vendas[rowIndex];
+        const paidAndDelivered = !!sale && sale.pago === 'Sim' && sale.entregue === 'Sim';
+        row.classList.toggle('moon3d-hide-completed', hidePaidAndDeliveredOrders && paidAndDelivered);
+      });
+    };
+
+    salesStyle.textContent += `
+      #data-table .moon3d-hide-completed { display: none !important; }
+      .moon3d-toggle-completed { white-space: nowrap; }
+      @media (max-width: 720px) {
+        .toolbar { flex-wrap: wrap; }
+        .moon3d-toggle-completed { width: 100%; }
+      }
+    `;
+
+    const salesTableObserver = new MutationObserver(() => {
+      applyMoon3DSalesOrder();
+      updatePaidDeliveredVisibility();
+    });
     salesTableObserver.observe(document.body, { childList: true, subtree: true });
     applyMoon3DSalesOrder();
+    updatePaidDeliveredVisibility();
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
