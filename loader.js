@@ -1,9 +1,9 @@
-/* Loader leve: descompacta CSS e JavaScript no navegador. */
+/* Loader: mantém os assets compactados e aplica a identidade visual clara. */
 (async function () {
   const root = document.getElementById('auth-root');
   try {
     if (!('DecompressionStream' in window)) {
-      throw new Error('Este navegador não oferece suporte à descompactação necessária. Atualize o Chrome, Edge ou Firefox.');
+      throw new Error('Atualize seu navegador para abrir o Moon3D.');
     }
     async function loadGzip(path) {
       const response = await fetch(path, { cache: 'no-cache' });
@@ -11,15 +11,24 @@
       const stream = response.body.pipeThrough(new DecompressionStream('gzip'));
       return await new Response(stream).text();
     }
-    const [css, js] = await Promise.all([
+    async function loadText(path) {
+      const response = await fetch(path, { cache: 'no-cache' });
+      if (!response.ok) throw new Error('Não foi possível carregar ' + path + ' (' + response.status + ').');
+      return await response.text();
+    }
+    const [baseCss, themeCss, js] = await Promise.all([
       loadGzip('styles.css.gz'),
+      loadText('theme-light.css'),
       loadGzip('app.js.gz')
     ]);
-    const style = document.createElement('style');
-    style.textContent = css;
-    document.head.appendChild(style);
+    const baseStyle = document.createElement('style');
+    baseStyle.textContent = baseCss;
+    document.head.appendChild(baseStyle);
+    const themeStyle = document.createElement('style');
+    themeStyle.textContent = themeCss;
+    document.head.appendChild(themeStyle);
     const script = document.createElement('script');
-    script.textContent = js;
+    script.textContent = js.replaceAll('logo-moon3d-completa.jpg', 'logo-moon3d-completa.webp');
     document.body.appendChild(script);
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);

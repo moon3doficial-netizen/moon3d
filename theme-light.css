@@ -1,0 +1,109 @@
+/* Moon3D — tema claro baseado no branco e verde da marca */
+:root{
+  --bg:#ffffff;--panel:#ffffff;--panel2:#f5f9ec;--line:#e5eadc;
+  --text:#252a20;--muted:#747d69;--blue:#88b82f;--cyan:#a2d549;
+  --green:#6f9c23;--red:#ca5550;--yellow:#ad841f;--accent:#a2d549;
+  --warning:#d5a52b;--radius:16px;color-scheme:light
+}
+body,.workspace,.main,.topbar{background:#fff;color:var(--text)}
+.workspace{display:flex;width:100%;min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid var(--line)}
+.brand-logo{object-fit:contain;background:#fff;border:1px solid #edf0e7;border-radius:10px;box-shadow:none}
+.brand strong{color:#181d14}.brand strong span{color:#8dbb31}
+.brand small{color:#858d7a}
+.nav-label{color:#939b89}
+.nav-item{color:#5e6754}
+.nav-item b{color:#87927b}
+.nav-item:hover{background:#f5f9ed;color:#35451d}
+.nav-item.active{background:#eff7df;color:#405b1d;box-shadow:inset 3px 0 #9bc83f}
+.nav-item.active b{color:#78a922}
+.sidebar-bottom{border-color:var(--line);color:#79816f}
+.main{border:0}
+.topbar{border-bottom:1px solid var(--line)}
+.eyebrow{color:#818a76}.eyebrow span,footer span{color:#83b12a}
+h1,.welcome h2{color:#252a20}
+.today{color:#7a826f}
+.avatar{background:#eff7df;color:#63891f}
+footer{border-color:var(--line);color:#868e7d}
+.content{color:var(--text)}
+.welcome p,.muted{color:var(--muted)}
+.btn{background:#a2d549;border:1px solid #91bd35;color:#263513;box-shadow:0 5px 14px #8bbd3024;font-weight:700}
+.btn:hover{background:#91c738;border-color:#82b72b;box-shadow:0 7px 18px #8bbd3033}
+.btn.secondary{background:#fff;border-color:#dce3d2;color:#4d5545;box-shadow:none}
+.btn.secondary:hover{background:#f6f9ef;border-color:#b9cf8b}
+.btn.danger{background:#fff3f1;border-color:#f0d0cb;color:#b44141;box-shadow:none}
+.btn.danger:hover{background:#ffe9e6;border-color:#e8b8b2}
+.metric,.panel{background:#fff;border:1px solid var(--line);box-shadow:0 3px 12px #34451a08}
+.metric:after{background:#a2d5491a}
+.metric .label{color:#727a6a}
+.metric .value{color:#252b20}
+.metric .hint{color:#92998a}
+.metric.blue .value,.metric.green .value{color:#6b971e}
+.metric.red .value{color:#c85151}
+.metric.yellow .value{color:#a17a19}
+.panel h3{color:#30372a}
+.empty{background:#fcfdf9;border-color:#d5dec8;color:#858d7b}
+.empty strong{color:#4b5540}
+.table-wrap{border-color:var(--line);background:#fff}
+th{color:#69745d;background:#f3f8e9}
+td{color:#454c3e;border-top:1px solid #edf0e8}
+tr:hover td{background:#fbfdf6}
+.tag{background:#f1f4eb;color:#5f694f}
+.tag.green{background:#edf7dd;color:#5e821e}
+.tag.red{background:#fff0ee;color:#b84b47}
+.search,.field input,.field select,.field textarea,.setting-row input,#shared-password{
+  background:#fff;color:#283020;border:1px solid #dfe5d8
+}
+.search::placeholder,input::placeholder,textarea::placeholder{color:#a1a897}
+.search:focus,input:focus,select:focus,textarea:focus{border-color:#94c83a!important;box-shadow:0 0 0 3px #a2d54925}
+.field label,#login-form label{color:#68715e}
+.modal-backdrop{background:#20291b66}
+.modal{background:#fff;color:#252b20;border-color:#e0e7d7;box-shadow:0 25px 80px #1f2a1640}
+.modal-head h2{color:#252b20}
+.close{background:#f3f6ed;color:#637052}
+.close:hover{background:#eaf3d8}
+.setting-row{border-color:#edf0e8}
+.setting-row span{color:#5f6854}
+.note{background:#f2f8e7;border-color:#dce9c2;color:#526b2d}
+.toast{background:#30431b;border-color:#759c31;color:#f7ffeb}
+.auth-root{
+  width:100%;min-height:100vh;padding:28px 18px;display:grid;place-items:center;
+  background:radial-gradient(ellipse at 12% 15%,#eff7df 0,transparent 34%),
+             radial-gradient(ellipse at 88% 85%,#f3f8e9 0,transparent 30%),#fff
+}
+.auth-root[hidden],.workspace[hidden]{display:none!important}
+.auth-card{
+  width:min(440px,100%);padding:34px 36px 30px;text-align:center;
+  background:#fff;border:1px solid #e5ebdc;border-radius:24px;
+  box-shadow:0 18px 55px #34451a12
+}
+.auth-logo{display:block;width:min(190px,70%);height:190px;object-fit:contain;margin:0 auto 12px}
+.auth-kicker{color:#7fae28;font-size:10px;font-weight:700;letter-spacing:2.2px;margin-top:2px}
+.auth-card h1{font:600 25px 'Space Grotesk';color:#20251b;margin:9px 0 8px}
+.auth-card p{font-size:13px;line-height:1.55;color:#747c6b;margin:0 auto 24px;max-width:320px}
+#login-form{text-align:left}
+#login-form label{display:block;color:#58624b;font-size:11px;font-weight:700;margin-bottom:7px}
+#shared-password{width:100%;height:46px;border-radius:11px;padding:0 13px;font-size:13px;outline:none}
+#shared-password:focus{border-color:#9bc83f;box-shadow:0 0 0 4px #a2d54922}
+.auth-submit{width:100%;height:46px;margin-top:14px;font-size:13px}
+.auth-card small{display:block;color:#929989;font-size:10px;line-height:1.5;margin-top:18px}
+.login-error{min-height:18px;color:#bd4d48;font-size:11px;margin:8px 0 0}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .auth-card{padding:25px 21px 23px;border-radius:19px}
+  .auth-logo{height:165px;width:min(165px,65%)}
+  .sidebar{width:65px;padding:18px 8px}
+  .brand{padding:0 3px 25px}
+  .brand>div:last-child,.nav-label,.nav-item:not(.active){display:none}
+  .brand-logo{width:42px;height:42px}
+  .nav-item{justify-content:center;padding:12px 0;font-size:0}
+  .nav-item b{font-size:19px}
+  .sidebar-bottom span{display:none}
+  .main{margin-left:65px;width:calc(100% - 65px);padding:0 13px}
+  .topbar{height:90px}.today{display:none}
+  .cards{grid-template-columns:1fr 1fr;gap:9px}
+  .metric{padding:13px}.metric .value{font-size:18px}
+  .welcome{align-items:flex-start;gap:12px;flex-direction:column}
+  .form-grid,.settings-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+}
