@@ -274,15 +274,74 @@
       toolbar?.querySelector('.moon3d-toggle-completed')?.remove();
     };
 
+    /* Impede que o formulário feche ao clicar fora do conteúdo. */
+    document.addEventListener('click', event => {
+      if (event.target?.classList?.contains('modal-backdrop')) event.stopPropagation();
+    }, true);
+
+    /* Dashboard: dá espaço ao nome e mostra o preço cadastrado do produto em estoque. */
+    const dashboardStockStyle = document.createElement('style');
+    dashboardStockStyle.textContent = `
+      .moon3d-stock-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)) !important; gap: 14px !important; }
+      .moon3d-stock-card { display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 12px !important; padding: 14px !important; }
+      .moon3d-stock-card > img, .moon3d-stock-card > div:first-child { width: 100% !important; max-width: 100% !important; height: 158px !important; flex: 0 0 158px !important; box-sizing: border-box !important; object-fit: contain !important; }
+      .moon3d-stock-info { width: 100% !important; min-width: 0 !important; display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 7px !important; }
+      .moon3d-stock-name { display: block !important; width: 100% !important; white-space: normal !important; overflow-wrap: anywhere !important; font-size: 14px !important; line-height: 1.4 !important; }
+      .moon3d-stock-size { display: block !important; white-space: normal !important; overflow-wrap: anywhere !important; font-size: 12px !important; }
+      .moon3d-stock-price { width: 100%; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 3px; padding-top: 9px; border-top: 1px solid var(--border); }
+      .moon3d-stock-price span { color: var(--muted); font-size: 11px; }
+      .moon3d-stock-price strong { color: var(--text); font-size: 14px; font-weight: 700; }
+    `;
+    document.head.appendChild(dashboardStockStyle);
+
+    const applyDashboardStockCards = () => {
+      const pageTitle = document.querySelector('#page-title');
+      if (!pageTitle || pageTitle.textContent.trim() !== 'Dashboard') return;
+      const stockPanel = Array.from(document.querySelectorAll('#app .panel')).find(panel =>
+        panel.querySelector('.panel-head h3')?.textContent.trim() === 'Produtos em estoque'
+      );
+      if (!stockPanel) return;
+      const grid = stockPanel.querySelector('.panel-head')?.nextElementSibling;
+      if (!grid || !grid.querySelector('img, .tag.green')) return;
+      grid.classList.add('moon3d-stock-grid');
+      const stockProducts = db.produtos.filter(product => Math.max(0, Math.floor(Number(product.estoque) || 0)) > 0);
+      Array.from(grid.children).forEach((card, index) => {
+        const product = stockProducts[index];
+        if (!product) return;
+        card.classList.add('moon3d-stock-card');
+        const info = card.querySelector('strong')?.parentElement;
+        if (!info) return;
+        info.classList.add('moon3d-stock-info');
+        const name = info.querySelector('strong');
+        if (name) name.classList.add('moon3d-stock-name');
+        const size = info.querySelector('.muted');
+        if (size) size.classList.add('moon3d-stock-size');
+        let price = info.querySelector('.moon3d-stock-price');
+        if (!price) {
+          price = document.createElement('div');
+          price.className = 'moon3d-stock-price';
+          const label = document.createElement('span');
+          label.textContent = 'Valor de venda';
+          const value = document.createElement('strong');
+          price.append(label, value);
+          info.appendChild(price);
+        }
+        const value = price.querySelector('strong');
+        if (value) value.textContent = Number(product.preco) > 0 ? money(product.preco) : 'Não informado';
+      });
+    };
+
     const salesTableObserver = new MutationObserver(() => {
       applyMoon3DSalesOrder();
       updatePaidDeliveredVisibility();
       applyMoon3DQuoteLayout();
+      applyDashboardStockCards();
     });
     salesTableObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
     applyMoon3DSalesOrder();
     updatePaidDeliveredVisibility();
     applyMoon3DQuoteLayout();
+    applyDashboardStockCards();
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
