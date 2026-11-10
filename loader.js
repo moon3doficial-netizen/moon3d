@@ -327,7 +327,7 @@
           info.appendChild(price);
         }
         const value = price.querySelector('strong');
-        if (value) value.textContent = Number(product.preco) > 0 ? money(product.preco) : 'Não informado';
+        if (value) { const salePrice = Number(product.preco) > 0 ? money(product.preco) : 'Não informado'; if (value.textContent !== salePrice) value.textContent = salePrice; }
       });
     };
 
