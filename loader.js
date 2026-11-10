@@ -189,8 +189,7 @@
               sale.producao = next;
               save();
             });
-            const rowFinalIndex = Array.from(row.children).findIndex(cell => normalizeColumnName(cell.textContent) === 'finalizado');
-            row.insertBefore(td, row.children[rowFinalIndex]);
+            row.insertBefore(td, row.children[finalIndex]);
           });
         } catch (err) {
           console.error('Não foi possível atualizar a coluna de produção:', err);
