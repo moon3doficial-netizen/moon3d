@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#10110d">
   <meta name="description" content="Moon3D — gestão financeira de impressão 3D">
   <title>Moon3D | Gestão</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="logo-moon3d-marca.webp" type="image/webp">
 </head>
 <body>
   <section id="auth-root" class="auth-root" hidden></section>
   <div id="workspace" class="workspace" hidden>
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-logo" src="logo-moon3d-marca.jpg" alt="Marca Moon3D">
+        <img class="brand-logo" src="logo-moon3d-marca.webp" alt="Marca Moon3D">
         <div><strong>MOON<span>3D</span></strong><small>IMPRESSÕES PERSONALIZADAS</small></div>
       </div>
       <div class="nav-label">MENU PRINCIPAL</div>
@@ -27,7 +27,7 @@
         <button class="nav-item" data-page="adicionais"><b>＋</b> Itens adicionais</button>
         <button class="nav-item" data-page="configuracoes"><b>⚙</b> Configurações</button>
       </nav>
-      <div class="sidebar-bottom"><div class="status-dot" id="connection-dot"></div><span id="connection-label">Demonstração local</span></div>
+      <div class="sidebar-bottom"><div class="status-dot" id="connection-dot"></div><span id="connection-label">Conectando...</span></div>
     </aside>
     <main class="main">
       <header class="topbar">
@@ -42,6 +42,6 @@
   <div id="toast" class="toast"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="app.js"></script>
+  <script src="loader.js"></script>
 </body>
 </html>
