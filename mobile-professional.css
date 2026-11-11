@@ -113,7 +113,7 @@
   #data-table[data-mobile-type="Vendas"] td[data-label="ENTREGUE?"],
   #data-table[data-mobile-type="Vendas"] td[data-label="PAGO?"]{grid-column:span 2}
 
-  #data-table[data-mobile-type="Compras"] tbody tr{grid-template-columns:repeat(6,minmax(0,1fr);column-gap:9px}
+  #data-table[data-mobile-type="Compras"] tbody tr{grid-template-columns:repeat(6,minmax(0,1fr));column-gap:9px}
   #data-table[data-mobile-type="Compras"] td[data-label="DATA"],
   #data-table[data-mobile-type="Compras"] td[data-label="VALOR"]{grid-column:span 3}
   #data-table[data-mobile-type="Compras"] td[data-label="PRODUTO / DESCRIÇÃO"],
@@ -135,7 +135,7 @@
   #data-table[data-mobile-type="Orçamentos"] td[data-label="PREÇO PROPOSTO"],
   #data-table[data-mobile-type="Orçamentos"] td[data-label="LUCRO ESTIMADO"]{grid-column:span 3}
 
-  #data-table[data-mobile-type="Produtos padrões"] tbody tr{grid-template-columns:repeat(4,minmax(0,1fr);column-gap:9px}
+  #data-table[data-mobile-type="Produtos padrões"] tbody tr{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:9px}
   #data-table[data-mobile-type="Produtos padrões"] td[data-label="PRODUTO"],
   #data-table[data-mobile-type="Produtos padrões"] td[data-label="VERSÃO / TAMANHO"],
   #data-table[data-mobile-type="Produtos padrões"] td[data-label="AÇÕES"],

@@ -707,6 +707,7 @@
       applyMoon3DQuoteLayout();
       applyMobileTableLabels();
       applyDashboardStockCards();
+      syncMoon3DMobileDock();
     });
     salesTableObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
     applyMoon3DSalesOrder();
@@ -714,6 +715,7 @@
     applyMoon3DQuoteLayout();
     applyMobileTableLabels();
     applyDashboardStockCards();
+    syncMoon3DMobileDock();
   } catch (error) {
     console.error('Falha ao iniciar Moon3D:', error);
     if (root) {
