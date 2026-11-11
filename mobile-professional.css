@@ -1,0 +1,202 @@
+/* Moon3D — experiência mobile refinada */
+.moon3d-mobile-dock,.moon3d-mobile-more{display:none}
+.moon3d-mobile-more-title{padding:8px 10px 10px;color:#879078;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+@media(max-width:700px){
+  :root{--mobile-gutter:15px;--mobile-radius:15px}
+  html,body{min-width:320px;width:100%;overflow-x:hidden}
+  body{display:block;padding-bottom:calc(92px + env(safe-area-inset-bottom));-webkit-text-size-adjust:100%}
+  .workspace{display:block;width:100%;min-height:100dvh;overflow-x:clip}
+  .sidebar{display:none!important}
+  .main{width:100%;max-width:100%;margin:0;padding:0 var(--mobile-gutter) calc(104px + env(safe-area-inset-bottom))}
+  .topbar{height:68px;min-height:68px;padding:8px 0;display:flex;justify-content:space-between;gap:8px}
+  .topbar>div:first-child{min-width:0}
+  .eyebrow{font-size:8px;letter-spacing:1.25px}
+  h1{margin-top:3px;font-size:21px;line-height:1.12}
+  .top-actions{flex:0 0 auto;gap:7px}
+  .today,.avatar{display:none!important}
+  .logout-btn{min-height:36px;padding:7px 10px;font-size:11px}
+  .content{width:100%;max-width:100%;min-height:0;margin:15px auto 24px}
+  footer{display:none}
+  .welcome{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+  .welcome>div{min-width:0}
+  .welcome h2{font-size:16px;line-height:1.25;margin:0 0 4px}
+  .welcome p{max-width:230px;font-size:10px;line-height:1.4}
+  .welcome>.btn{flex:0 0 auto;min-height:39px;padding:9px 11px;font-size:10px;white-space:nowrap}
+  .cards,.dashboard-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-bottom:13px}
+  .dashboard-cards .metric{display:flex;flex-direction:column;justify-content:space-between;min-width:0;min-height:105px;padding:11px 11px 10px!important;border-radius:var(--mobile-radius);box-shadow:0 2px 9px rgba(43,57,27,.045)}
+  .dashboard-cards .metric:after{width:54px;height:54px;right:-21px;top:-22px}
+  .dashboard-cards .metric .label{position:relative;z-index:1;font-size:10px;line-height:1.3;font-weight:650}
+  .dashboard-cards .metric .value{position:relative;z-index:1;margin:8px 0 4px;font-size:clamp(17px,4.7vw,21px);line-height:1.12;letter-spacing:-.35px;overflow-wrap:anywhere}
+  .dashboard-cards .metric .hint{position:relative;z-index:1;font-size:9px;line-height:1.3}
+  .dashboard-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:11px}
+  .panel,.dashboard-grid .panel{min-width:0;padding:14px;border-radius:var(--mobile-radius);box-shadow:0 2px 10px rgba(43,57,27,.04)}
+  .panel-head{align-items:flex-start;gap:8px;margin-bottom:11px}
+  .panel h3{font-size:13px;line-height:1.25}
+  .panel-head .muted{display:block;font-size:9px;line-height:1.35;margin-top:3px}
+  .tag{font-size:9px;padding:4px 7px;white-space:nowrap}
+
+  .dashboard-grid .table-wrap{overflow:visible;border:0;border-radius:0;background:transparent}
+  .moon3d-history-table{width:100%;min-width:0;border:0;border-collapse:separate;border-spacing:0}
+  .moon3d-history-table thead{display:none}
+  .moon3d-history-table tbody{display:grid;gap:7px}
+  .moon3d-history-table tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 9px;padding:9px 10px;border:1px solid #e9eee1;border-radius:11px;background:#fbfcf8}
+  .moon3d-history-table tbody td{min-width:0;padding:6px 0 2px;border:0;background:transparent!important;font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+  .moon3d-history-table tbody td::before{content:attr(data-label);display:block;margin-bottom:4px;color:#838b78;font-size:8px;font-weight:700;letter-spacing:.4px;line-height:1.15}
+  .moon3d-history-table tbody td[data-label="MÊS"]{grid-column:1/-1;padding:2px 0 8px;border-bottom:1px solid #e9eee1;color:#303a26;font-size:13px;font-weight:700;text-transform:capitalize}
+  .moon3d-history-table tbody td[data-label="MÊS"]::before{display:none}
+  .moon3d-history-table tbody td[data-label="FATURAMENTO"]{color:#608b20;font-weight:700}
+  .moon3d-result-panel .setting-row{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px 0}
+  .moon3d-result-panel .setting-row span{font-size:10px;line-height:1.3}
+  .moon3d-result-panel .setting-row b{font-size:12px;white-space:nowrap}
+  .moon3d-result-panel .setting-row:last-of-type{margin:5px -4px 0;padding:11px 9px;border:1px solid #e2edce;border-radius:10px;background:#f6faef}
+  .moon3d-result-panel .setting-row:last-of-type span{color:#526b2d;font-weight:700}
+  .moon3d-result-panel .setting-row:last-of-type b{font-size:15px}
+  .moon3d-result-panel>.muted{font-size:9px;line-height:1.4}
+
+  .moon3d-task-panel{margin:11px 0 13px;padding:14px;border-radius:var(--mobile-radius)}
+  .moon3d-task-panel .panel-head{align-items:center}
+  .moon3d-task-panel .panel-head>div{min-width:0}
+  .moon3d-task-panel .panel-head .muted{font-size:9px}
+  .moon3d-task-form{grid-template-columns:minmax(0,1fr) auto;gap:7px;margin:10px 0}
+  .moon3d-task-form input{min-height:42px;padding:9px 11px;font-size:13px}
+  .moon3d-task-form .btn{min-height:42px;width:auto;padding:9px 11px;font-size:10px;white-space:nowrap}
+  .moon3d-task-list{gap:7px}
+  .moon3d-task-item{align-items:center;gap:9px;padding:9px 10px;border-color:#e9eee1;background:#fff}
+  .moon3d-task-text{font-size:11px;line-height:1.35}
+  .moon3d-task-done{min-height:34px;padding:7px 9px;font-size:10px}
+  .moon3d-task-empty{padding:12px;font-size:10px}
+
+  .moon3d-stock-grid{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:8px!important}
+  .moon3d-stock-card{display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;padding:9px!important;border-radius:11px!important}
+  .moon3d-stock-card>img,.moon3d-stock-card>div:first-child{width:68px!important;max-width:68px!important;height:68px!important;flex:0 0 68px!important}
+  .moon3d-stock-info{flex:1;min-width:0!important;gap:4px!important}
+  .moon3d-stock-name{font-size:12px!important;line-height:1.3!important}
+  .moon3d-stock-size{font-size:10px!important}
+  .moon3d-stock-price{gap:6px;margin-top:1px;padding-top:5px}
+  .moon3d-stock-price span{font-size:9px}
+  .moon3d-stock-price strong{font-size:12px}
+
+  .toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin:0 0 12px}
+  .toolbar .search{grid-column:1/-1;width:100%;max-width:none;min-height:43px;padding:10px 12px;font-size:14px}
+  .toolbar .muted{align-self:center;font-size:10px}
+  .toolbar .btn{width:auto;min-height:36px;padding:8px 10px;font-size:10px}
+  .moon3d-toggle-completed{max-width:190px;white-space:normal!important;line-height:1.2}
+
+  .moon3d-mobile-table-wrap{overflow:visible;border:0;background:transparent}
+  #data-table{display:block;width:100%;min-width:0;border:0;border-collapse:separate;border-spacing:0}
+  #data-table thead{display:none}
+  #data-table tbody{display:grid;gap:9px}
+  #data-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:0 12px;overflow:hidden;padding:8px 12px;border:1px solid #e7ecdf;border-radius:13px;background:#fff;box-shadow:0 2px 8px rgba(43,57,27,.035)}
+  #data-table tbody tr[hidden],#data-table tbody tr.moon3d-hide-completed{display:none!important}
+  #data-table tbody td{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:4px;min-width:0;padding:8px 0;border:0;background:transparent!important;font-size:11px;line-height:1.3;text-align:left;overflow-wrap:anywhere}
+  #data-table tbody td::before{content:attr(data-label);display:block;width:100%;min-width:0;flex:none;color:#838b78;font-size:8px;font-weight:700;letter-spacing:.45px;line-height:1.15;text-align:left;text-transform:uppercase}
+  #data-table tbody td>*{max-width:100%;min-width:0;text-align:left;overflow-wrap:anywhere}
+  #data-table tbody td:last-child{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:7px;padding-top:9px;border-top:1px solid #edf0e8}
+  #data-table tbody td:last-child::before{width:auto;margin-right:auto}
+  #data-table tbody td:last-child .btn{width:auto;flex:0 0 auto;min-height:34px;padding:8px 11px;font-size:10px}
+  #data-table .status-select{width:100%;min-width:0;max-width:100%;min-height:34px;padding:6px 7px;font-size:10px}
+  #data-table .moon3d-progress-cell{width:auto;min-width:0}
+  #data-table .moon3d-progress-control{width:100%;min-width:0;display:grid;gap:6px}
+  #data-table .moon3d-progress-meta{justify-content:flex-start}
+  #data-table .moon3d-progress-slider{min-width:0}
+
+  #data-table[data-mobile-type="Vendas"] tbody tr{grid-template-columns:repeat(6,minmax(0,1fr));column-gap:9px}
+  #data-table[data-mobile-type="Vendas"] td[data-label="ORDEM"]{grid-column:span 2}
+  #data-table[data-mobile-type="Vendas"] td[data-label="DATA"]{grid-column:span 4}
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUTO"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="CLIENTE"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="AÇÕES"]{grid-column:1/-1}
+  #data-table[data-mobile-type="Vendas"] td[data-label="VALOR COBRADO"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="LUCRO LÍQUIDO"]{grid-column:span 3}
+  #data-table[data-mobile-type="Vendas"] td[data-label="FINALIZADO?"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="ENTREGUE?"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="PAGO?"]{grid-column:span 2}
+
+  #data-table[data-mobile-type="Compras"] tbody tr{grid-template-columns:repeat(6,minmax(0,1fr);column-gap:9px}
+  #data-table[data-mobile-type="Compras"] td[data-label="DATA"],
+  #data-table[data-mobile-type="Compras"] td[data-label="VALOR"]{grid-column:span 3}
+  #data-table[data-mobile-type="Compras"] td[data-label="PRODUTO / DESCRIÇÃO"],
+  #data-table[data-mobile-type="Compras"] td[data-label="AÇÕES"]{grid-column:1/-1}
+  #data-table[data-mobile-type="Compras"] td[data-label="CATEGORIA"],
+  #data-table[data-mobile-type="Compras"] td[data-label="FORNECEDOR"],
+  #data-table[data-mobile-type="Compras"] td[data-label="QUANTIDADE"]{grid-column:span 2}
+
+  #data-table[data-mobile-type="Orçamentos"] tbody tr{grid-template-columns:repeat(6,minmax(0,1fr));column-gap:9px}
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="PRODUTO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="CLIENTE"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="AÇÕES"]{grid-column:1/-1}
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="DATA"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="VALIDADE"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="QT. PEÇAS"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="GRAMAS"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="HORAS DE IMPRESSÃO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="HORAS DE MÃO DE OBRA"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="PREÇO PROPOSTO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="LUCRO ESTIMADO"]{grid-column:span 3}
+
+  #data-table[data-mobile-type="Produtos padrões"] tbody tr{grid-template-columns:repeat(4,minmax(0,1fr);column-gap:9px}
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="PRODUTO"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="VERSÃO / TAMANHO"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="AÇÕES"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="FOTO"]{grid-column:1/-1}
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="ESTOQUE (UN.)"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="GRAMAS POR UNIDADE"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="HORAS POR UNIDADE"],
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="VALOR EFETIVAMENTE COBRADO (R$)"]{grid-column:span 2}
+  #data-table[data-mobile-type="Produtos padrões"] td[data-label="FOTO"] img{width:64px!important;height:64px!important;object-fit:contain}
+  #data-table[data-mobile-type="Itens adicionais"] td[data-label="NOME"],
+  #data-table[data-mobile-type="Itens adicionais"] td[data-label="CUSTO UNITÁRIO"],
+  #data-table[data-mobile-type="Itens adicionais"] td[data-label="AÇÕES"]{grid-column:1/-1}
+
+  .form-grid,.settings-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .field.full{grid-column:auto}
+  .field{gap:6px}
+  .field label{font-size:11px}
+  .field input,.field select,.field textarea{width:100%;min-height:44px;padding:10px 12px;font-size:16px;border-radius:10px}
+  .field textarea{min-height:90px}
+  .price-preview{padding:13px}
+  .preview-heading strong{font-size:12px}
+  .preview-heading span{font-size:9px}
+  .preview-breakdown{grid-template-columns:minmax(0,1fr);gap:8px}
+  .preview-breakdown div{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .preview-breakdown span{font-size:10px}
+  .preview-breakdown b{font-size:11px}
+  .preview-total strong{font-size:19px}
+  .settings-grid{gap:12px}
+  .settings-grid .panel{padding:14px}
+  .setting-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 0}
+  .setting-row>span:first-child{font-size:11px;line-height:1.35}
+  .setting-row input{width:min(38vw,130px);min-height:38px;font-size:14px}
+
+  .modal-backdrop{display:flex;align-items:flex-end;justify-content:center;padding:8px}
+  .modal{width:100%;max-width:none;max-height:calc(100dvh - 16px - env(safe-area-inset-top));padding:15px;border-radius:18px 18px 12px 12px;overflow:auto;overscroll-behavior:contain}
+  .modal-head{position:sticky;top:-15px;z-index:3;margin:-1px 0 14px;padding:10px 0 12px;background:#fff;border-bottom:1px solid #e9eee1}
+  .modal-head h2{font-size:15px;line-height:1.25}
+  .close{flex:none;width:38px;height:38px}
+  .modal-actions{position:sticky;bottom:-15px;z-index:3;display:flex;justify-content:stretch;gap:8px;margin:14px -1px -1px;padding:11px 0 max(4px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e9eee1}
+  .modal-actions .btn{flex:1;min-height:43px}
+
+  .moon3d-mobile-dock{position:fixed;z-index:30;left:12px;right:12px;bottom:calc(8px + env(safe-area-inset-bottom));height:66px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;gap:2px;padding:5px;border:1px solid rgba(222,231,211,.95);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 8px 28px rgba(35,49,21,.14);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .moon3d-mobile-dock button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;gap:4px;padding:4px 2px;border:0;border-radius:12px;background:transparent;color:#748067;font-size:9px;font-weight:600;line-height:1.05;cursor:pointer}
+  .moon3d-mobile-dock button .dock-icon{display:grid;place-items:center;width:25px;height:23px;font-size:17px;line-height:1}
+  .moon3d-mobile-dock button.active{background:#f0f7e4;color:#547d1a;font-weight:750}
+  .moon3d-mobile-dock button.active .dock-icon{color:#6d9d20}
+  .moon3d-mobile-more{position:fixed;z-index:31;right:12px;bottom:calc(82px + env(safe-area-inset-bottom));width:min(230px,calc(100vw - 24px));padding:8px;border:1px solid #e2e9d8;border-radius:15px;background:rgba(255,255,255,.98);box-shadow:0 12px 32px rgba(35,49,21,.16)}
+  .moon3d-mobile-more[hidden]{display:none!important}
+  .moon3d-mobile-more:not([hidden]){display:block}
+  .moon3d-mobile-more button{display:flex;align-items:center;width:100%;min-height:44px;gap:10px;padding:9px 10px;border:0;border-radius:10px;background:transparent;color:#3e4932;text-align:left;font-size:12px;font-weight:600}
+  .moon3d-mobile-more button.active{background:#f0f7e4;color:#52791d}
+  .moon3d-mobile-more button .dock-icon{width:22px;text-align:center;font-size:17px}
+  .toast{left:14px;right:14px;bottom:calc(86px + env(safe-area-inset-bottom));text-align:center}
+}
+@media(max-width:380px){
+  .welcome{align-items:flex-start}
+  .welcome h2{font-size:15px}
+  .welcome p{max-width:185px}
+  .welcome>.btn{padding:8px 9px;font-size:9px}
+  .dashboard-cards .metric{min-height:100px;padding:10px!important}
+  .dashboard-cards .metric .value{font-size:17px}
+  .moon3d-mobile-dock{left:8px;right:8px}
+  #data-table[data-mobile-type="Vendas"] tbody tr{column-gap:7px}
+}
