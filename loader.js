@@ -49,8 +49,9 @@
       const originalDashboardView = views.dashboard;
       views.dashboard = function () {
         const html = originalDashboardView();
-        const marker = '<div class="dashboard-grid">';
-        return html.includes(marker) ? html.replace(marker, renderMoon3DTasks() + marker) : html;
+        const marker = '</div><div class="panel" style="margin-top:18px">';
+        const insertion = '</div>' + renderMoon3DTasks() + '<div class="panel" style="margin-top:18px">';
+        return html.includes(marker) ? html.replace(marker, insertion) : html;
       };
     }
     const moon3dDashboard = document.querySelector('#app');
