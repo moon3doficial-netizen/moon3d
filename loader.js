@@ -48,7 +48,27 @@
     if (typeof views !== 'undefined' && typeof views.dashboard === 'function') {
       const originalDashboardView = views.dashboard;
       views.dashboard = function () {
-        const html = originalDashboardView();
+        let html = originalDashboardView();
+
+        /* Atualiza os nomes e acrescenta o indicador percentual solicitado. */
+        const revenue = db.vendas.reduce((total, sale) => total + (Number(sale.preco) || 0), 0);
+        const productionCost = db.vendas.reduce((total, sale) => total + costOf(sale), 0);
+        const netProfit = revenue - productionCost;
+        const profitIndex = netProfit !== 0 ? revenue / netProfit * 100 : null;
+
+        const marginCardPattern = /<div class="metric [^"]*"><div class="label">Margem líquida<\/div><div class="value">[^<]*<\/div><div class="hint">Lucro líquido ÷ faturamento<\/div><\/div>/;
+        const marginCard = html.match(marginCardPattern);
+        if (marginCard) {
+          const renamedMarginCard = marginCard[0].replace('Margem líquida', 'Margem de lucro');
+          const profitCard = '<div class="metric blue"><div class="label">Lucro (%)</div><div class="value">' +
+            (profitIndex === null ? '—' : profitIndex.toFixed(1).replace('.', ',') + '%') +
+            '</div><div class="hint">Faturamento ÷ lucro líquido × 100</div></div>';
+          html = html.replace(marginCard[0], renamedMarginCard + profitCard);
+        }
+
+        html = html.replaceAll('Lucro líquido operacional', 'Lucro líquido');
+
+        /* Mantém o quadro de atividades depois do histórico e resultado acumulado. */
         const marker = '</div><div class="panel" style="margin-top:18px">';
         const insertion = '</div>' + renderMoon3DTasks() + '<div class="panel" style="margin-top:18px">';
         return html.includes(marker) ? html.replace(marker, insertion) : html;
