@@ -31,6 +31,78 @@
     script.textContent = js.replaceAll('logo-moon3d-completa.jpg', 'logo-moon3d-completa.webp');
 
     document.body.appendChild(script);
+    /* Quadro simples de atividades no Dashboard: itens concluídos são removidos, sem histórico. */
+    db.atividades = Array.isArray(db.atividades) ? db.atividades : [];
+    const renderMoon3DTasks = () => {
+      const tasks = Array.isArray(db.atividades) ? db.atividades : [];
+      const taskRows = tasks.length ? '<ul class="moon3d-task-list">' + tasks.map(task =>
+        '<li class="moon3d-task-item"><span class="moon3d-task-text">' + escapeHTML(task.texto || '') + '</span>' +
+        '<button type="button" class="moon3d-task-done" data-task-complete="' + escapeHTML(task.id || '') + '">Concluído</button></li>'
+      ).join('') + '</ul>' : '<div class="moon3d-task-empty"><strong>Nenhuma atividade anotada</strong><span>Escreva uma tarefa acima para ela aparecer aqui.</span></div>';
+      return '<section class="panel moon3d-task-panel" aria-label="Quadro de atividades">' +
+        '<div class="panel-head"><div><h3>Quadro de atividades</h3><span class="muted">Anote o que precisa fazer e remova ao concluir.</span></div>' +
+        '<span class="tag green">' + tasks.length + ' pendente(s)</span></div>' +
+        '<form id="moon3d-task-form" class="moon3d-task-form"><input id="moon3d-task-input" name="atividade" type="text" maxlength="180" required autocomplete="off" placeholder="Ex.: Comprar filamento branco">' +
+        '<button type="submit" class="btn">＋ Adicionar</button></form>' + taskRows + '</section>';
+    };
+    if (typeof views !== 'undefined' && typeof views.dashboard === 'function') {
+      const originalDashboardView = views.dashboard;
+      views.dashboard = function () {
+        const html = originalDashboardView();
+        const marker = '<div class="dashboard-grid">';
+        return html.includes(marker) ? html.replace(marker, renderMoon3DTasks() + marker) : html;
+      };
+    }
+    const moon3dDashboard = document.querySelector('#app');
+    if (moon3dDashboard) {
+      moon3dDashboard.addEventListener('submit', event => {
+        const form = event.target.closest('#moon3d-task-form');
+        if (!form) return;
+        event.preventDefault();
+        const input = form.querySelector('#moon3d-task-input');
+        const texto = String(input?.value || '').trim();
+        if (!texto) return;
+        db.atividades = Array.isArray(db.atividades) ? db.atividades : [];
+        db.atividades.unshift({ id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random().toString(36).slice(2)), texto });
+        save();
+        toast('Atividade adicionada.');
+      });
+      moon3dDashboard.addEventListener('click', event => {
+        const button = event.target.closest('[data-task-complete]');
+        if (!button) return;
+        const id = button.getAttribute('data-task-complete');
+        const before = db.atividades.length;
+        db.atividades = db.atividades.filter(task => String(task.id) !== String(id));
+        if (db.atividades.length !== before) { save(); toast('Atividade concluída e removida.'); }
+      });
+    }
+    const moon3dTaskStyle = document.createElement('style');
+    moon3dTaskStyle.textContent = `
+      .moon3d-task-panel { margin: 16px 0 18px; }
+      .moon3d-task-form { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 9px; margin: 12px 0; }
+      .moon3d-task-form input { width: 100%; min-width: 0; min-height: 42px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; }
+      .moon3d-task-list { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+      .moon3d-task-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+      .moon3d-task-text { min-width: 0; color: var(--text); font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+      .moon3d-task-done { flex: 0 0 auto; border: 1px solid #d6e7b9; border-radius: 8px; padding: 7px 10px; background: #f2f8e9; color: #527b16; font-size: 11px; font-weight: 700; cursor: pointer; }
+      .moon3d-task-done:active { transform: scale(.98); }
+      .moon3d-task-empty { display: flex; flex-direction: column; gap: 4px; padding: 13px; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; }
+      .moon3d-task-empty strong { color: var(--text); font-size: 13px; }
+      @media (max-width:700px) {
+        .moon3d-task-panel { margin: 12px 0 14px; padding: 12px; }
+        .moon3d-task-panel .panel-head { align-items: center; }
+        .moon3d-task-panel .panel-head h3 { font-size: 13px; }
+        .moon3d-task-panel .panel-head .muted { display: block; font-size: 9px; }
+        .moon3d-task-form { grid-template-columns: minmax(0,1fr) auto; gap: 6px; margin: 9px 0; }
+        .moon3d-task-form input { min-height: 38px; padding: 8px 9px; font-size: 12px; }
+        .moon3d-task-form .btn { width: auto; min-height: 38px; padding: 8px 10px; font-size: 10px; white-space: nowrap; }
+        .moon3d-task-list { gap: 6px; }
+        .moon3d-task-item { padding: 8px 9px; gap: 8px; }
+        .moon3d-task-text { font-size: 11px; }
+        .moon3d-task-done { padding: 7px 8px; font-size: 9px; }
+      }
+    `;
+    document.head.appendChild(moon3dTaskStyle);
 
     /* Correção: tempo de mão de obra é separado do tempo de impressão. */
     const originalOpenForm = window.openForm;
