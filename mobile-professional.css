@@ -200,3 +200,184 @@
   .moon3d-mobile-dock{left:8px;right:8px}
   #data-table[data-mobile-type="Vendas"] tbody tr{column-gap:7px}
 }
+
+
+/* Ajustes de cabeçalho e formulários — refinamento final para celular */
+@media (max-width:700px) {
+  /* Título da página em uma única área, sem competir com o botão Sair. */
+  .topbar {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    justify-content:initial;
+    gap:8px;
+    width:100%;
+    height:auto !important;
+    min-height:0 !important;
+    padding:12px 0 11px;
+  }
+  .topbar > div:first-child {
+    grid-column:1;
+    grid-row:1;
+    display:block;
+    width:100%;
+    min-width:0;
+  }
+  .topbar .eyebrow { display:none !important; }
+  .topbar h1 {
+    display:block;
+    max-width:100%;
+    margin:0;
+    font-size:clamp(18px,5.4vw,22px);
+    line-height:1.18;
+    letter-spacing:-.35px;
+    font-weight:700;
+    white-space:normal;
+    overflow-wrap:break-word;
+    word-break:normal;
+  }
+  .top-actions {
+    grid-column:2;
+    grid-row:1;
+    position:static;
+    align-self:center;
+    justify-self:end;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    min-width:0;
+  }
+  .top-actions .logout-btn {
+    min-height:34px;
+    padding:7px 9px;
+    font-size:10px;
+    white-space:nowrap;
+  }
+
+  /* O título principal já está no cabeçalho; deixa a descrição e ação no topo do conteúdo. */
+  #app:not([data-mobile-page="Dashboard"]) > .welcome {
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:5px 0 14px;
+    padding:0;
+  }
+  #app:not([data-mobile-page="Dashboard"]) > .welcome > div {
+    flex:1 1 auto;
+    min-width:0;
+  }
+  #app:not([data-mobile-page="Dashboard"]) > .welcome h2 { display:none !important; }
+  #app:not([data-mobile-page="Dashboard"]) > .welcome p {
+    max-width:none;
+    margin:0;
+    font-size:10px;
+    line-height:1.35;
+  }
+  #app:not([data-mobile-page="Dashboard"]) > .welcome > .btn {
+    flex:0 0 auto;
+    width:auto;
+    max-width:46%;
+    min-height:36px;
+    padding:8px 10px;
+    font-size:10px;
+    line-height:1.2;
+    white-space:normal;
+    text-align:center;
+  }
+
+  /* O formulário fica acima do menu inferior e mantém Salvar/Cancelar visíveis. */
+  #modal-root {
+    position:relative;
+    z-index:90;
+  }
+  .modal-backdrop {
+    position:fixed;
+    z-index:100 !important;
+    top:var(--moon3d-visual-offset,0px);
+    right:0;
+    bottom:auto;
+    left:0;
+    width:100%;
+    height:var(--moon3d-visual-height,100dvh);
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding:8px 8px max(8px,env(safe-area-inset-bottom));
+    overflow:hidden;
+  }
+  .modal {
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    max-width:650px;
+    max-height:calc(var(--moon3d-visual-height,100dvh) - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    min-height:0;
+    padding:14px 14px 0;
+    overflow:hidden;
+    border-radius:18px 18px 12px 12px;
+  }
+  .modal-head {
+    position:relative;
+    top:auto;
+    z-index:2;
+    flex:0 0 auto;
+    margin:0 0 10px;
+    padding:3px 0 11px;
+    background:#fff;
+    border-bottom:1px solid #e9eee1;
+  }
+  .modal-head h2 {
+    min-width:0;
+    font-size:15px;
+    line-height:1.25;
+    overflow-wrap:anywhere;
+  }
+  #record-form {
+    display:flex;
+    flex:1 1 auto;
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden;
+  }
+  #record-form > .form-grid {
+    flex:1 1 auto;
+    min-height:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:2px 2px 14px 0;
+  }
+  #record-form > .modal-actions {
+    position:relative !important;
+    inset:auto !important;
+    z-index:3;
+    display:flex;
+    flex:0 0 auto;
+    justify-content:stretch;
+    gap:9px;
+    margin:0;
+    padding:11px 0 max(10px,env(safe-area-inset-bottom));
+    background:#fff;
+    border-top:1px solid #e9eee1;
+    box-shadow:0 -5px 12px rgba(42,57,26,.045);
+  }
+  #record-form > .modal-actions .btn {
+    flex:1 1 0;
+    width:auto;
+    min-width:0;
+    min-height:44px;
+    margin:0;
+    font-size:12px;
+  }
+}
+@media(max-width:380px) {
+  .topbar h1 { font-size:18px; }
+  #app:not([data-mobile-page="Dashboard"]) > .welcome > .btn {
+    max-width:48%;
+    padding:7px 8px;
+    font-size:9px;
+  }
+}

@@ -409,6 +409,7 @@
       const app = document.querySelector('#app');
       if (!app) return;
       const pageTitle = document.querySelector('#page-title')?.textContent.trim() || '';
+      if (app.dataset.mobilePage !== pageTitle) app.dataset.mobilePage = pageTitle;
       const table = app.querySelector('#data-table');
       if (table) {
         const wrapper = table.closest('.table-wrap');
@@ -700,6 +701,19 @@
     } catch (mobileCssError) {
       console.warn('Estilos profissionais mobile não carregados; mantendo estilos anteriores.',mobileCssError);
     }
+
+    /* Acompanha a área realmente visível do celular quando o teclado virtual abre. */
+    const updateMoon3DVisualViewport = () => {
+      const viewport = window.visualViewport;
+      const height = viewport?.height || window.innerHeight;
+      const offset = viewport?.offsetTop || 0;
+      document.documentElement.style.setProperty('--moon3d-visual-height', height + 'px');
+      document.documentElement.style.setProperty('--moon3d-visual-offset', offset + 'px');
+    };
+    updateMoon3DVisualViewport();
+    window.addEventListener('resize', updateMoon3DVisualViewport, { passive: true });
+    window.visualViewport?.addEventListener('resize', updateMoon3DVisualViewport, { passive: true });
+    window.visualViewport?.addEventListener('scroll', updateMoon3DVisualViewport, { passive: true });
 
     const salesTableObserver = new MutationObserver(() => {
       applyMoon3DSalesOrder();
