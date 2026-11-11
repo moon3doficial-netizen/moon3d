@@ -461,6 +461,76 @@
       }
     };
 
+    /* Cartões expansíveis em Vendas, Compras e Orçamentos — somente no celular. */
+    const applyMoon3DExpandableCards = () => {
+      const table = document.querySelector('#app #data-table');
+      const page = document.querySelector('#page-title')?.textContent.trim() || '';
+      if (!table || !['Vendas','Compras','Orçamentos'].includes(page)) return;
+      table.classList.add('moon3d-expandable-table');
+      const rows = Array.from(table.querySelectorAll('tbody tr'));
+      rows.forEach(row => {
+        row.classList.add('moon3d-expandable-card');
+        const cells = Array.from(row.children);
+        let actionCell = null;
+        cells.forEach(cell => {
+          const label = normalizeSalesHeader(cell.dataset.label || '');
+          let slot = '';
+          if (label.includes('acoes')) slot = 'actions';
+          else if (page === 'Vendas') {
+            if (label.includes('ordem')) slot = 'order';
+            else if (label.includes('data')) slot = 'date';
+            else if (label.includes('produto')) slot = 'product';
+            else if (label.includes('cliente')) slot = 'client';
+            else if (label.includes('valorcobrado')) slot = 'amount';
+          } else if (page === 'Compras') {
+            if (label.includes('data')) slot = 'date';
+            else if (label.includes('produto') || label.includes('descricao')) slot = 'product';
+            else if (label.includes('valor') && !label.includes('quantidade')) slot = 'amount';
+          } else if (page === 'Orçamentos') {
+            if (label.includes('data')) slot = 'date';
+            else if (label.includes('produto')) slot = 'product';
+            else if (label.includes('cliente')) slot = 'client';
+            else if (label.includes('precoproposto') || (label.includes('valor') && label.includes('proposto'))) slot = 'amount';
+          }
+          if (slot) {
+            cell.dataset.cardSummary = 'true';
+            cell.dataset.cardSlot = slot;
+          } else {
+            delete cell.dataset.cardSummary;
+            delete cell.dataset.cardSlot;
+          }
+          if (slot === 'actions') actionCell = cell;
+        });
+        if (!actionCell && cells.length) {
+          actionCell = cells[cells.length - 1];
+          actionCell.dataset.cardSummary = 'true';
+          actionCell.dataset.cardSlot = 'actions';
+        }
+        if (actionCell && !actionCell.querySelector('.moon3d-card-expand-toggle')) {
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'moon3d-card-expand-toggle';
+          toggle.textContent = 'Ver detalhes';
+          toggle.setAttribute('aria-expanded','false');
+          actionCell.prepend(toggle);
+        }
+      });
+      if (table.dataset.expandHandlerInstalled !== 'yes') {
+        table.dataset.expandHandlerInstalled = 'yes';
+        table.addEventListener('click', event => {
+          const toggle = event.target.closest('.moon3d-card-expand-toggle');
+          if (!toggle) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const row = toggle.closest('tr');
+          if (!row) return;
+          const expanded = row.classList.toggle('moon3d-card-expanded');
+          toggle.textContent = expanded ? 'Ocultar detalhes' : 'Ver detalhes';
+          toggle.setAttribute('aria-expanded',String(expanded));
+        });
+      }
+    };
+
     /* Layout mobile reorganizado: navegação inferior, conteúdo em coluna e controles maiores. */
     const mobileLayoutStyle = document.createElement('style');
     mobileLayoutStyle.textContent = `
@@ -740,6 +810,7 @@
       updatePaidDeliveredVisibility();
       applyMoon3DQuoteLayout();
       applyMobileTableLabels();
+      applyMoon3DExpandableCards();
       applyDashboardStockCards();
       syncMoon3DMobileDock();
     });
@@ -748,6 +819,7 @@
     updatePaidDeliveredVisibility();
     applyMoon3DQuoteLayout();
     applyMobileTableLabels();
+    applyMoon3DExpandableCards();
     applyDashboardStockCards();
     syncMoon3DMobileDock();
   } catch (error) {
