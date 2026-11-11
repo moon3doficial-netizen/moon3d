@@ -478,3 +478,206 @@
     font-size:9px !important;
   }
 }
+
+
+/* Cartões compactos para Vendas, Compras e Orçamentos no celular */
+@media (max-width:700px) {
+  #data-table[data-mobile-type="Vendas"] tbody,
+  #data-table[data-mobile-type="Compras"] tbody,
+  #data-table[data-mobile-type="Orçamentos"] tbody {
+    gap:7px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody tr,
+  #data-table[data-mobile-type="Compras"] tbody tr,
+  #data-table[data-mobile-type="Orçamentos"] tbody tr {
+    padding:5px 10px !important;
+    gap:0 9px !important;
+    border-radius:11px !important;
+    box-shadow:0 1px 5px rgba(43,57,27,.035) !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td,
+  #data-table[data-mobile-type="Compras"] tbody td,
+  #data-table[data-mobile-type="Orçamentos"] tbody td {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:baseline !important;
+    justify-content:space-between !important;
+    gap:6px !important;
+    min-height:27px !important;
+    padding:5px 0 !important;
+    font-size:10px !important;
+    line-height:1.2 !important;
+    text-align:right !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td::before,
+  #data-table[data-mobile-type="Compras"] tbody td::before,
+  #data-table[data-mobile-type="Orçamentos"] tbody td::before {
+    display:block !important;
+    flex:0 1 43% !important;
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+    color:#858d7b !important;
+    font-size:7.5px !important;
+    font-weight:750 !important;
+    line-height:1.15 !important;
+    letter-spacing:.25px !important;
+    text-align:left !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td > *,
+  #data-table[data-mobile-type="Compras"] tbody td > *,
+  #data-table[data-mobile-type="Orçamentos"] tbody td > * {
+    flex:1 1 57% !important;
+    width:auto !important;
+    max-width:57% !important;
+    min-width:0 !important;
+    font-size:10px !important;
+    line-height:1.2 !important;
+    text-align:right !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  /* Vendas: identificação no topo, valores lado a lado, status em uma única faixa. */
+  #data-table[data-mobile-type="Vendas"] tbody tr {
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="ORDEM"] { grid-column:span 2 !important; }
+  #data-table[data-mobile-type="Vendas"] td[data-label="DATA"] { grid-column:span 4 !important; }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUTO"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="CLIENTE"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"] { grid-column:1/-1 !important; }
+  #data-table[data-mobile-type="Vendas"] td[data-label="VALOR COBRADO"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="LUCRO LÍQUIDO"] { grid-column:span 3 !important; }
+  #data-table[data-mobile-type="Vendas"] td[data-label="FINALIZADO?"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="ENTREGUE?"],
+  #data-table[data-mobile-type="Vendas"] td[data-label="PAGO?"] {
+    grid-column:span 2 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:4px !important;
+    min-height:48px !important;
+    padding:6px 0 !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="FINALIZADO?"]::before,
+  #data-table[data-mobile-type="Vendas"] td[data-label="ENTREGUE?"]::before,
+  #data-table[data-mobile-type="Vendas"] td[data-label="PAGO?"]::before {
+    flex:none !important;
+    width:100% !important;
+    font-size:7px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="FINALIZADO?"] .status-select,
+  #data-table[data-mobile-type="Vendas"] td[data-label="ENTREGUE?"] .status-select,
+  #data-table[data-mobile-type="Vendas"] td[data-label="PAGO?"] .status-select {
+    width:100% !important;
+    max-width:none !important;
+    min-height:30px !important;
+    padding:4px 5px !important;
+    font-size:9px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"] {
+    align-items:center !important;
+    min-height:32px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"]::before {
+    flex:0 0 36% !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"] .moon3d-progress-control {
+    flex:1 1 64% !important;
+    width:auto !important;
+    min-width:0 !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:7px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"] .moon3d-progress-meta {
+    flex:0 0 auto !important;
+    justify-content:flex-end !important;
+  }
+  #data-table[data-mobile-type="Vendas"] td[data-label="PRODUÇÃO (%)"] .moon3d-progress-slider {
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+  }
+
+  /* Compras: descrição em destaque e as informações restantes em duas colunas. */
+  #data-table[data-mobile-type="Compras"] tbody tr {
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  }
+  #data-table[data-mobile-type="Compras"] td[data-label="DATA"],
+  #data-table[data-mobile-type="Compras"] td[data-label="VALOR"] { grid-column:span 3 !important; }
+  #data-table[data-mobile-type="Compras"] td[data-label="PRODUTO / DESCRIÇÃO"],
+  #data-table[data-mobile-type="Compras"] td[data-label="AÇÕES"] { grid-column:1/-1 !important; }
+  #data-table[data-mobile-type="Compras"] td[data-label="CATEGORIA"],
+  #data-table[data-mobile-type="Compras"] td[data-label="FORNECEDOR"],
+  #data-table[data-mobile-type="Compras"] td[data-label="QUANTIDADE"] { grid-column:span 2 !important; }
+
+  /* Orçamentos: produto e cliente primeiro; medidas, prazo e valores em pares. */
+  #data-table[data-mobile-type="Orçamentos"] tbody tr {
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  }
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="PRODUTO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="CLIENTE"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="AÇÕES"] { grid-column:1/-1 !important; }
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="DATA"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="VALIDADE"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="QT. PEÇAS"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="GRAMAS"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="HORAS DE IMPRESSÃO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="HORAS DE MÃO DE OBRA"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="PREÇO PROPOSTO"],
+  #data-table[data-mobile-type="Orçamentos"] td[data-label="LUCRO ESTIMADO"] { grid-column:span 3 !important; }
+
+  #data-table[data-mobile-type="Vendas"] tbody td[data-label="AÇÕES"],
+  #data-table[data-mobile-type="Compras"] tbody td[data-label="AÇÕES"],
+  #data-table[data-mobile-type="Orçamentos"] tbody td[data-label="AÇÕES"] {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    flex-wrap:nowrap !important;
+    gap:6px !important;
+    min-height:36px !important;
+    margin-top:2px !important;
+    padding:6px 0 2px !important;
+    border-top:1px solid #edf0e8 !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td[data-label="AÇÕES"]::before,
+  #data-table[data-mobile-type="Compras"] tbody td[data-label="AÇÕES"]::before,
+  #data-table[data-mobile-type="Orçamentos"] tbody td[data-label="AÇÕES"]::before {
+    display:none !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td[data-label="AÇÕES"] > *,
+  #data-table[data-mobile-type="Compras"] tbody td[data-label="AÇÕES"] > *,
+  #data-table[data-mobile-type="Orçamentos"] tbody td[data-label="AÇÕES"] > * {
+    flex:0 0 auto !important;
+    width:auto !important;
+    max-width:none !important;
+    min-height:29px !important;
+    padding:6px 9px !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    text-align:center !important;
+  }
+}
+@media(max-width:380px) {
+  #data-table[data-mobile-type="Vendas"] tbody tr,
+  #data-table[data-mobile-type="Compras"] tbody tr,
+  #data-table[data-mobile-type="Orçamentos"] tbody tr {
+    padding:4px 8px !important;
+    column-gap:7px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td,
+  #data-table[data-mobile-type="Compras"] tbody td,
+  #data-table[data-mobile-type="Orçamentos"] tbody td {
+    min-height:25px !important;
+    padding:4px 0 !important;
+    font-size:9px !important;
+  }
+  #data-table[data-mobile-type="Vendas"] tbody td::before,
+  #data-table[data-mobile-type="Compras"] tbody td::before,
+  #data-table[data-mobile-type="Orçamentos"] tbody td::before {
+    font-size:7px !important;
+  }
+}
