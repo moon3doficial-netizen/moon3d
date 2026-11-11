@@ -381,3 +381,100 @@
     font-size:9px;
   }
 }
+
+
+/* Dashboard: cabeçalho sem títulos duplicados ou desalinhados */
+@media (max-width:700px) {
+  #workspace .main > .topbar {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    width:100% !important;
+    min-height:58px !important;
+    height:auto !important;
+    padding:12px 0 10px !important;
+    gap:10px !important;
+  }
+  #workspace .main > .topbar > div:first-child {
+    display:block !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    width:auto !important;
+  }
+  #workspace .main > .topbar h1#page-title {
+    display:block !important;
+    width:auto !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-size:22px !important;
+    line-height:1.15 !important;
+    font-weight:750 !important;
+    letter-spacing:-.45px !important;
+    white-space:normal !important;
+    overflow-wrap:break-word !important;
+    word-break:normal !important;
+    text-align:left !important;
+  }
+  #workspace .main > .topbar .top-actions {
+    position:static !important;
+    flex:0 0 auto !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    width:auto !important;
+    min-width:0 !important;
+    margin:0 !important;
+  }
+
+  /* No Dashboard, o nome da aba fica apenas no cabeçalho superior. */
+  #app[data-mobile-page="Dashboard"] > .welcome {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    width:100% !important;
+    margin:3px 0 14px !important;
+    padding:0 !important;
+  }
+  #app[data-mobile-page="Dashboard"] > .welcome > div {
+    flex:1 1 auto !important;
+    min-width:0 !important;
+  }
+  #app[data-mobile-page="Dashboard"] > .welcome h2 {
+    display:none !important;
+  }
+  #app[data-mobile-page="Dashboard"] > .welcome p {
+    display:block !important;
+    max-width:none !important;
+    margin:0 !important;
+    color:#7a826f !important;
+    font-size:10px !important;
+    line-height:1.35 !important;
+    text-align:left !important;
+  }
+  #app[data-mobile-page="Dashboard"] > .welcome > .btn {
+    display:inline-flex !important;
+    flex:0 0 auto !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    max-width:46% !important;
+    min-height:36px !important;
+    margin:0 !important;
+    padding:8px 10px !important;
+    font-size:10px !important;
+    line-height:1.2 !important;
+    white-space:normal !important;
+    text-align:center !important;
+  }
+}
+@media(max-width:380px) {
+  #workspace .main > .topbar h1#page-title { font-size:20px !important; }
+  #app[data-mobile-page="Dashboard"] > .welcome > .btn {
+    max-width:48% !important;
+    padding:7px 8px !important;
+    font-size:9px !important;
+  }
+}
