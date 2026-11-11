@@ -406,20 +406,38 @@
 
     /* No celular, transforma a tabela de registros em cartões legíveis. */
     const applyMobileTableLabels = () => {
-      const table = document.querySelector('#data-table');
-      if (!table) return;
-      const wrapper = table.closest('.table-wrap');
-      if (wrapper) wrapper.classList.add('moon3d-mobile-table-wrap');
+      const app = document.querySelector('#app');
+      if (!app) return;
       const pageTitle = document.querySelector('#page-title')?.textContent.trim() || '';
-      if (table.dataset.mobileType !== pageTitle) table.dataset.mobileType = pageTitle;
-      const headers = Array.from(table.querySelectorAll('thead th'));
-      if (!headers.length) return;
-      Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
-        Array.from(row.children).forEach((cell, index) => {
-          const label = headers[index]?.textContent.trim() || '';
-          if (cell.dataset.label !== label) cell.dataset.label = label;
+      const table = app.querySelector('#data-table');
+      if (table) {
+        const wrapper = table.closest('.table-wrap');
+        if (wrapper) wrapper.classList.add('moon3d-mobile-table-wrap');
+        if (table.dataset.mobileType !== pageTitle) table.dataset.mobileType = pageTitle;
+        const headers = Array.from(table.querySelectorAll('thead th'));
+        Array.from(table.querySelectorAll('tbody tr')).forEach(row => {
+          Array.from(row.children).forEach((cell, index) => {
+            const label = headers[index]?.textContent.trim() || '';
+            if (cell.dataset.label !== label) cell.dataset.label = label;
+          });
         });
-      });
+      }
+      const panels = Array.from(app.querySelectorAll('.dashboard-grid .panel'));
+      const history = panels.find(panel => panel.querySelector('.panel-head h3')?.textContent.trim() === 'Histórico mensal');
+      const result = panels.find(panel => panel.querySelector('.panel-head h3')?.textContent.trim() === 'Resultado acumulado');
+      history?.classList.add('moon3d-history-panel');
+      result?.classList.add('moon3d-result-panel');
+      const historyTable = history?.querySelector('.table-wrap table');
+      if (historyTable) {
+        historyTable.classList.add('moon3d-history-table');
+        const headers = Array.from(historyTable.querySelectorAll('thead th'));
+        Array.from(historyTable.querySelectorAll('tbody tr')).forEach(row => {
+          Array.from(row.children).forEach((cell, index) => {
+            const label = headers[index]?.textContent.trim() || '';
+            if (cell.dataset.label !== label) cell.dataset.label = label;
+          });
+        });
+      }
     };
 
     /* Layout mobile reorganizado: navegação inferior, conteúdo em coluna e controles maiores. */
@@ -587,6 +605,101 @@
       }
     `;
     document.head.appendChild(mobileCompactStyle);
+
+
+    /* Navegação móvel: quatro áreas principais e um menu compacto para cadastros. */
+    const installMoon3DMobileDock = () => {
+      const workspace = document.querySelector('#workspace');
+      const originalNav = document.querySelector('#nav');
+      if (!workspace || !originalNav || workspace.querySelector('.moon3d-mobile-dock')) return;
+      const primary = [
+        {page:'dashboard', label:'Início'},
+        {page:'vendas', label:'Vendas'},
+        {page:'compras', label:'Compras'},
+        {page:'orcamentos', label:'Orçamentos'}
+      ];
+      const extras = [
+        {page:'produtos', label:'Produtos padrões'},
+        {page:'adicionais', label:'Itens adicionais'},
+        {page:'configuracoes', label:'Configurações'}
+      ];
+      const iconFor = page => originalNav.querySelector('[data-page="' + page + '"] b')?.textContent.trim() || '•';
+      const dock = document.createElement('nav');
+      dock.className = 'moon3d-mobile-dock';
+      dock.setAttribute('aria-label','Navegação principal');
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.innerHTML = '<span class="dock-icon">•••</span><span>Mais</span>';
+      more.setAttribute('aria-expanded','false');
+      const sheet = document.createElement('div');
+      sheet.className = 'moon3d-mobile-more';
+      sheet.hidden = true;
+      sheet.setAttribute('aria-label','Mais opções');
+      const sheetTitle = document.createElement('div');
+      sheetTitle.className = 'moon3d-mobile-more-title';
+      sheetTitle.textContent = 'Cadastros e ajustes';
+      sheet.appendChild(sheetTitle);
+      const buttons = new Map();
+      const selectPage = page => {
+        const target = originalNav.querySelector('[data-page="' + page + '"]');
+        if (target) target.click();
+        sheet.hidden = true;
+        more.setAttribute('aria-expanded','false');
+        sync();
+      };
+      const makeButton = item => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.page = item.page;
+        const icon = document.createElement('span');
+        icon.className = 'dock-icon';
+        icon.textContent = iconFor(item.page);
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        button.append(icon,label);
+        button.addEventListener('click',() => selectPage(item.page));
+        buttons.set(item.page,button);
+        return button;
+      };
+      primary.forEach(item => dock.appendChild(makeButton(item)));
+      more.addEventListener('click',() => {
+        sheet.hidden = !sheet.hidden;
+        more.setAttribute('aria-expanded',String(!sheet.hidden));
+        sync();
+      });
+      dock.appendChild(more);
+      extras.forEach(item => sheet.appendChild(makeButton(item)));
+      workspace.append(dock,sheet);
+      const sync = () => {
+        const active = originalNav.querySelector('.nav-item.active')?.dataset.page || 'dashboard';
+        buttons.forEach((button,page) => {
+          const selected = page === active;
+          button.classList.toggle('active',selected);
+          if (selected) button.setAttribute('aria-current','page');
+          else button.removeAttribute('aria-current');
+        });
+        more.classList.toggle('active',extras.some(item => item.page === active) || !sheet.hidden);
+        more.setAttribute('aria-expanded',String(!sheet.hidden));
+      };
+      document.addEventListener('click',event => {
+        if (sheet.hidden || dock.contains(event.target) || sheet.contains(event.target)) return;
+        sheet.hidden = true;
+        more.setAttribute('aria-expanded','false');
+        sync();
+      });
+      sync();
+      return sync;
+    };
+    const syncMoon3DMobileDock = installMoon3DMobileDock() || (() => {});
+    try {
+      const professionalCss = await loadText('mobile-professional.css');
+      const professionalStyle = document.createElement('style');
+      professionalStyle.id = 'moon3d-mobile-professional';
+      professionalStyle.textContent = professionalCss;
+      document.head.appendChild(professionalStyle);
+    } catch (mobileCssError) {
+      console.warn('Estilos profissionais mobile não carregados; mantendo estilos anteriores.',mobileCssError);
+    }
 
     const salesTableObserver = new MutationObserver(() => {
       applyMoon3DSalesOrder();
