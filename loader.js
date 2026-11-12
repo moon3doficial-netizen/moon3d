@@ -55,6 +55,10 @@
         const productionCost = db.vendas.reduce((total, sale) => total + costOf(sale), 0);
         const netProfit = revenue - productionCost;
         const investment = revenue - netProfit;
+        const receivable = db.vendas.reduce((total, sale) =>
+          total + (['nao', 'não'].includes(String(sale.pago || '').trim().toLowerCase())
+            ? (Number(sale.preco) || 0)
+            : 0), 0);
         const roi = investment > 0 ? (netProfit / investment) * 100 : null;
 
         const marginCardPattern = new RegExp('<div class="metric [^\\"]*"><div class="label">Margem líquida</div><div class="value">[^<]*</div><div class="hint">Lucro líquido ÷ faturamento</div></div>');
@@ -67,7 +71,10 @@
           const roiCard = '<div class="metric green"><div class="label">ROI</div><div class="value">' +
             (roi === null ? '—' : roi.toFixed(1).replace('.', ',') + '%') +
             '</div><div class="hint">(Lucro líquido ÷ investimento) × 100</div></div>';
-          html = html.replace(marginCard[0], investmentCard + renamedMarginCard + roiCard);
+          const receivableCard = '<div class="metric"><div class="label">A Receber</div><div class="value">' +
+            money(receivable) +
+            '</div><div class="hint">Vendas com pagamento pendente</div></div>';
+          html = html.replace(marginCard[0], investmentCard + renamedMarginCard + roiCard + receivableCard);
         }
 
         html = html.replaceAll('Lucro líquido operacional', 'Lucro líquido');
@@ -297,11 +304,17 @@
 
     /* A listagem é recriada pelo aplicativo ao salvar e filtrar; observa cada nova tabela. */
 
-    let hidePaidAndDeliveredOrders = false;
+    let hidePaidAndDeliveredOrders = true;
+    let lastSalesVisibilityPage = null;
     const updatePaidDeliveredVisibility = () => {
       const pageTitle = document.querySelector('#page-title');
+      const currentPage = pageTitle?.textContent.trim() || '';
       const toolbar = document.querySelector('.toolbar');
-      if (!pageTitle || pageTitle.textContent.trim() !== 'Vendas') {
+      if (currentPage !== lastSalesVisibilityPage) {
+        if (currentPage === 'Vendas') hidePaidAndDeliveredOrders = true;
+        lastSalesVisibilityPage = currentPage;
+      }
+      if (currentPage !== 'Vendas') {
         toolbar?.querySelector('.moon3d-toggle-completed')?.remove();
         return;
       }
@@ -319,8 +332,8 @@
         toolbar.appendChild(toggle);
       }
       const toggleLabel = hidePaidAndDeliveredOrders
-        ? 'Mostrar todos os pedidos'
-        : 'Ocultar pedidos pagos e entregues';
+        ? 'Mostrar pedidos finalizados'
+        : 'Ocultar pedidos finalizados';
       if (toggle.textContent !== toggleLabel) toggle.textContent = toggleLabel;
       const pressed = String(hidePaidAndDeliveredOrders);
       if (toggle.getAttribute('aria-pressed') !== pressed) toggle.setAttribute('aria-pressed', pressed);
@@ -330,8 +343,8 @@
       Array.from(table.querySelectorAll('tbody tr')).forEach((row, rowIndex) => {
         const orderNumber = row.children[0]?.textContent.trim() || '';
         const sale = db.vendas.find(item => String(item.ordem) === orderNumber) || db.vendas[rowIndex];
-        const paidAndDelivered = !!sale && sale.pago === 'Sim' && sale.entregue === 'Sim';
-        row.classList.toggle('moon3d-hide-completed', hidePaidAndDeliveredOrders && paidAndDelivered);
+        const finalized = !!sale && String(sale.finalizado || '').trim().toLowerCase() === 'sim';
+        row.classList.toggle('moon3d-hide-completed', hidePaidAndDeliveredOrders && finalized);
       });
     };
 
