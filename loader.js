@@ -54,16 +54,20 @@
         const revenue = db.vendas.reduce((total, sale) => total + (Number(sale.preco) || 0), 0);
         const productionCost = db.vendas.reduce((total, sale) => total + costOf(sale), 0);
         const netProfit = revenue - productionCost;
-        const profitIndex = netProfit !== 0 ? revenue / netProfit * 100 : null;
+        const investment = revenue - netProfit;
+        const roi = investment > 0 ? (netProfit / investment) * 100 : null;
 
-        const marginCardPattern = /<div class="metric [^"]*"><div class="label">Margem líquida<\/div><div class="value">[^<]*<\/div><div class="hint">Lucro líquido ÷ faturamento<\/div><\/div>/;
+        const marginCardPattern = new RegExp('<div class="metric [^\\"]*"><div class="label">Margem líquida</div><div class="value">[^<]*</div><div class="hint">Lucro líquido ÷ faturamento</div></div>');
         const marginCard = html.match(marginCardPattern);
         if (marginCard) {
           const renamedMarginCard = marginCard[0].replace('Margem líquida', 'Margem de lucro');
-          const profitCard = '<div class="metric blue"><div class="label">Lucro (%)</div><div class="value">' +
-            (profitIndex === null ? '—' : profitIndex.toFixed(1).replace('.', ',') + '%') +
-            '</div><div class="hint">Faturamento ÷ lucro líquido × 100</div></div>';
-          html = html.replace(marginCard[0], renamedMarginCard + profitCard);
+          const investmentCard = '<div class="metric yellow"><div class="label">Investimento</div><div class="value">' +
+            money(investment) +
+            '</div><div class="hint">Faturamento − lucro líquido</div></div>';
+          const roiCard = '<div class="metric green"><div class="label">ROI</div><div class="value">' +
+            (roi === null ? '—' : roi.toFixed(1).replace('.', ',') + '%') +
+            '</div><div class="hint">(Lucro líquido ÷ investimento) × 100</div></div>';
+          html = html.replace(marginCard[0], investmentCard + renamedMarginCard + roiCard);
         }
 
         html = html.replaceAll('Lucro líquido operacional', 'Lucro líquido');
