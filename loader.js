@@ -71,7 +71,7 @@
           const roiCard = '<div class="metric green"><div class="label">ROI</div><div class="value">' +
             (roi === null ? '—' : roi.toFixed(1).replace('.', ',') + '%') +
             '</div><div class="hint">(Lucro líquido ÷ investimento) × 100</div></div>';
-          const receivableCard = '<div class="metric"><div class="label">A Receber</div><div class="value">' +
+          const receivableCard = '<div class="metric yellow"><div class="label">A Receber</div><div class="value">' +
             money(receivable) +
             '</div><div class="hint">Vendas com pagamento pendente</div></div>';
           html = html.replace(marginCard[0], investmentCard + renamedMarginCard + roiCard + receivableCard);
