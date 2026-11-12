@@ -343,7 +343,8 @@
       Array.from(table.querySelectorAll('tbody tr')).forEach((row, rowIndex) => {
         const orderNumber = row.children[0]?.textContent.trim() || '';
         const sale = db.vendas.find(item => String(item.ordem) === orderNumber) || db.vendas[rowIndex];
-        const finalized = !!sale && String(sale.finalizado || '').trim().toLowerCase() === 'sim';
+        const finalized = !!sale &&
+          ['finalizado', 'entregue', 'pago'].every(field => String(sale[field] || '').trim().toLowerCase() === 'sim');
         row.classList.toggle('moon3d-hide-completed', hidePaidAndDeliveredOrders && finalized);
       });
     };
