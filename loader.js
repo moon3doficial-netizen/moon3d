@@ -193,6 +193,316 @@
       };
     }
 
+
+    /* MOON3D_QUOTE_WHATSAPP_V1 — campos opcionais e mensagem editável para WhatsApp nos orçamentos. */
+    const quoteExtraGroups = [
+      { title:'Dimensões', fields:[
+        {name:'largura',label:'Largura (cm)',placeholder:'Ex.: 20'},
+        {name:'altura',label:'Altura (cm)',placeholder:'Ex.: 22'},
+        {name:'profundidade',label:'Profundidade (cm)',placeholder:'Ex.: 4'}
+      ]},
+      { title:'Características', fields:[
+        {name:'cor',label:'Cor',placeholder:'Ex.: Branco'},
+        {name:'material',label:'Material',placeholder:'Ex.: PLA'},
+        {name:'acabamento',label:'Acabamento',placeholder:'Ex.: Liso'},
+        {name:'personalizacao',label:'Personalização',placeholder:'Ex.: Nome gravado'},
+        {name:'modelo',label:'Modelo',placeholder:'Ex.: Personalizado'}
+      ]},
+      { title:'Entrega', fields:[
+        {name:'prazoProducao',label:'Prazo de produção',placeholder:'Ex.: 5 dias úteis'},
+        {name:'dataEntrega',label:'Data de entrega',type:'date'},
+        {name:'formaEntrega',label:'Forma de entrega',placeholder:'Ex.: Retirada ou entrega'}
+      ]}
+    ];
+    const quoteText = value => String(value == null ? '' : value).trim();
+    const quoteNormalize = value => quoteText(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const quoteGet = (record, keys) => {
+      for (const key of keys) if (record && record[key] != null && quoteText(record[key]) !== '') return record[key];
+      return '';
+    };
+    const quoteParseCustom = raw => {
+      if (Array.isArray(raw)) return raw;
+      if (raw && typeof raw === 'object') return Object.entries(raw).map(([label,value]) => ({label,value}));
+      if (typeof raw === 'string' && raw.trim()) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+          if (parsed && typeof parsed === 'object') return Object.entries(parsed).map(([label,value]) => ({label,value}));
+        } catch (_) {}
+      }
+      return [];
+    };
+    const quoteFormatMoney = value => {
+      if (value == null || quoteText(value) === '') return '';
+      const numeric = typeof value === 'number' ? value : Number(String(value).replace(/[^\d,.-]/g,'').replace(/\.(?=.*[,])/g,'').replace(',','.'));
+      return Number.isFinite(numeric) && typeof money === 'function' ? money(numeric) : quoteText(value);
+    };
+    const quoteSyncCustom = (form, hidden) => {
+      hidden.value = JSON.stringify(Array.from(form.querySelectorAll('.moon3d-quote-custom-row')).map(row => ({
+        label:quoteText(row.querySelector('[data-custom-label]')?.value),
+        value:quoteText(row.querySelector('[data-custom-value]')?.value)
+      })).filter(item => item.label && item.value));
+    };
+
+    const previousMoon3DOpenForm = window.openForm;
+    if (typeof previousMoon3DOpenForm === 'function') {
+      window.openForm = function(type, index = null) {
+        const result = previousMoon3DOpenForm.apply(this, arguments);
+        if (type !== 'orcamentos') return result;
+        const form = document.getElementById('record-form');
+        if (!form || form.dataset.moon3dQuoteFields === 'yes') return result;
+        const record = index !== null && db.orcamentos && db.orcamentos[index] ? db.orcamentos[index] : {};
+        form.dataset.moon3dQuoteFields = 'yes';
+
+        const section = document.createElement('div');
+        section.className = 'moon3d-quote-extra';
+        const heading = document.createElement('div');
+        heading.className = 'moon3d-quote-extra-heading';
+        heading.innerHTML = '<strong>Informações para a mensagem do WhatsApp</strong><span>Todos os campos são opcionais. Campos vazios não aparecem na mensagem.</span>';
+        section.appendChild(heading);
+
+        quoteExtraGroups.forEach(group => {
+          const groupBox = document.createElement('section');
+          groupBox.className = 'moon3d-quote-group';
+          const title = document.createElement('h4');
+          title.textContent = group.title;
+          const grid = document.createElement('div');
+          grid.className = 'moon3d-quote-fields-grid';
+          group.fields.forEach(field => {
+            if (form.querySelector('[name="' + field.name + '"]')) return;
+            const wrap = document.createElement('div');
+            wrap.className = 'field moon3d-quote-field';
+            const id = 'moon3d-quote-' + field.name;
+            const label = document.createElement('label');
+            label.htmlFor = id;
+            label.textContent = field.label;
+            const input = document.createElement('input');
+            input.id = id;
+            input.name = field.name;
+            input.type = field.type || 'text';
+            input.placeholder = field.placeholder || '';
+            if (['largura','altura','profundidade'].includes(field.name)) input.inputMode = 'decimal';
+            input.value = record[field.name] == null ? '' : record[field.name];
+            wrap.append(label,input);
+            grid.appendChild(wrap);
+          });
+          groupBox.append(title,grid);
+          section.appendChild(groupBox);
+        });
+
+        const notesGroup = document.createElement('section');
+        notesGroup.className = 'moon3d-quote-group';
+        const notesTitle = document.createElement('h4');
+        notesTitle.textContent = 'Informações adicionais';
+        const notesField = document.createElement('div');
+        notesField.className = 'field moon3d-quote-field';
+        const notesLabel = document.createElement('label');
+        notesLabel.htmlFor = 'moon3d-quote-observacoes';
+        notesLabel.textContent = 'Observações';
+        const notesInput = document.createElement('textarea');
+        notesInput.id = 'moon3d-quote-observacoes';
+        notesInput.name = 'observacoesOrcamento';
+        notesInput.rows = 2;
+        notesInput.placeholder = 'Informações extras para o cliente';
+        notesInput.value = record.observacoesOrcamento || '';
+        notesField.append(notesLabel,notesInput);
+        notesGroup.append(notesTitle,notesField);
+        section.appendChild(notesGroup);
+
+        const customGroup = document.createElement('section');
+        customGroup.className = 'moon3d-quote-group';
+        const customTitle = document.createElement('h4');
+        customTitle.textContent = 'Campos personalizados';
+        const customList = document.createElement('div');
+        customList.className = 'moon3d-quote-custom-list';
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'informacoesPersonalizadas';
+        hidden.value = JSON.stringify(quoteParseCustom(record.informacoesPersonalizadas));
+        const addCustomRow = (labelValue = '', valueValue = '') => {
+          const row = document.createElement('div');
+          row.className = 'moon3d-quote-custom-row';
+          const labelWrap = document.createElement('div');
+          labelWrap.className = 'field';
+          const labelCaption = document.createElement('label');
+          labelCaption.textContent = 'Nome da informação';
+          const labelInput = document.createElement('input');
+          labelInput.type = 'text';
+          labelInput.placeholder = 'Ex.: Frase';
+          labelInput.dataset.customLabel = 'true';
+          labelInput.value = labelValue;
+          labelWrap.append(labelCaption,labelInput);
+          const valueWrap = document.createElement('div');
+          valueWrap.className = 'field';
+          const valueCaption = document.createElement('label');
+          valueCaption.textContent = 'Informação';
+          const valueInput = document.createElement('input');
+          valueInput.type = 'text';
+          valueInput.placeholder = 'Ex.: Minha formatura!';
+          valueInput.dataset.customValue = 'true';
+          valueInput.value = valueValue;
+          valueWrap.append(valueCaption,valueInput);
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'btn secondary moon3d-quote-remove-field';
+          remove.textContent = 'Remover';
+          remove.addEventListener('click',() => {
+            if (!window.confirm('Deseja remover este campo personalizado?')) return;
+            row.remove();
+            quoteSyncCustom(form,hidden);
+          });
+          row.append(labelWrap,valueWrap,remove);
+          customList.appendChild(row);
+          labelInput.addEventListener('input',() => quoteSyncCustom(form,hidden));
+          valueInput.addEventListener('input',() => quoteSyncCustom(form,hidden));
+        };
+        quoteParseCustom(record.informacoesPersonalizadas).forEach(item => addCustomRow(item.label || item.nome || '',item.value || item.valor || ''));
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'btn secondary moon3d-quote-add-field';
+        addButton.textContent = '+ Adicionar informação';
+        addButton.addEventListener('click',() => addCustomRow());
+        customGroup.append(customTitle,customList,addButton,hidden);
+        section.appendChild(customGroup);
+
+        const submit = form.querySelector('button[type="submit"],input[type="submit"]');
+        const actionArea = submit && (submit.closest('.form-actions, .modal-actions, .actions') || submit);
+        if (actionArea && actionArea.parentNode === form) form.insertBefore(section,actionArea);
+        else form.appendChild(section);
+        quoteSyncCustom(form,hidden);
+
+        if (!document.getElementById('moon3d-quote-extra-style')) {
+          const style = document.createElement('style');
+          style.id = 'moon3d-quote-extra-style';
+          style.textContent = '.moon3d-quote-extra{grid-column:1/-1;display:grid;gap:14px;margin-top:12px;padding-top:16px;border-top:1px solid var(--border,rgba(128,128,128,.25))}.moon3d-quote-extra-heading{display:grid;gap:4px}.moon3d-quote-extra-heading strong{font-size:14px}.moon3d-quote-extra-heading span{color:var(--muted,#888);font-size:12px}.moon3d-quote-group{display:grid;gap:9px;min-width:0}.moon3d-quote-group h4{margin:0;font-size:13px}.moon3d-quote-fields-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px}.moon3d-quote-custom-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end;gap:10px;margin-bottom:9px}.moon3d-quote-remove-field{min-height:40px;white-space:nowrap}.moon3d-quote-add-field{justify-self:start}.moon3d-quote-extra input,.moon3d-quote-extra textarea{max-width:100%;box-sizing:border-box}@media(max-width:620px){.moon3d-quote-custom-row{grid-template-columns:1fr}.moon3d-quote-remove-field{justify-self:start}}';
+          document.head.appendChild(style);
+        }
+        return result;
+      };
+    }
+
+    const buildMoon3DQuoteMessage = record => {
+      const lines = ['🎓 MOON 3D – ORÇAMENTO'];
+      const addLine = (label,value) => { const clean = quoteText(value); if (clean) lines.push(label + ': ' + clean); };
+      addLine('Cliente',quoteGet(record,['cliente','nomeCliente','nome']));
+      addLine('Produto',quoteGet(record,['produto','nomeProduto','descricao','produtoNome']));
+
+      const dimensions = [];
+      [['Largura','largura'],['Altura','altura'],['Profundidade','profundidade']].forEach(([label,key]) => {
+        const value = quoteText(record[key]);
+        if (value) dimensions.push(label + ': ' + value + ' cm');
+      });
+      if (dimensions.length) lines.push('','📏 Dimensões:',...dimensions);
+
+      const characteristics = [];
+      [['Cor','cor'],['Material','material'],['Acabamento','acabamento'],['Personalização','personalizacao'],['Modelo','modelo']].forEach(([label,key]) => {
+        const value = quoteText(record[key]);
+        if (value) characteristics.push(label + ': ' + value);
+      });
+      if (characteristics.length) lines.push('','🎨 Características:',...characteristics);
+
+      const additional = [];
+      quoteParseCustom(record.informacoesPersonalizadas).forEach(item => {
+        const label = quoteText(item.label || item.nome);
+        const value = quoteText(item.value || item.valor);
+        if (label && value) additional.push(label + ': ' + value);
+      });
+      [['Prazo de produção',['prazoProducao','prazo']],['Data de entrega',['dataEntrega']],['Forma de entrega',['formaEntrega']],['Observações',['observacoesOrcamento','observacoes']]].forEach(([label,keys]) => {
+        const value = quoteGet(record,keys);
+        if (quoteText(value)) additional.push(label + ': ' + quoteText(value));
+      });
+      if (additional.length) lines.push('','📝 Informações adicionais:',...additional);
+
+      const total = quoteFormatMoney(quoteGet(record,['precoProposto','valorProposto','valorTotal','preco','valor']));
+      if (total) lines.push('','💰 Valor total: ' + total);
+      lines.push('','Se estiver tudo certo, é só me confirmar para darmos andamento ao pedido! 😊');
+      return lines.join('\n');
+    };
+
+    const openMoon3DQuoteMessage = record => {
+      document.getElementById('moon3d-quote-message-modal')?.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'moon3d-quote-message-modal';
+      overlay.className = 'modal-backdrop moon3d-quote-message-backdrop';
+      const panel = document.createElement('div');
+      panel.className = 'modal moon3d-quote-message-panel';
+      panel.setAttribute('role','dialog');
+      panel.setAttribute('aria-modal','true');
+      panel.innerHTML = '<div class="modal-header"><h3>Mensagem para WhatsApp</h3><button type="button" class="btn secondary moon3d-quote-message-close" aria-label="Fechar">×</button></div><p class="moon3d-quote-message-hint">Revise e edite a mensagem. As alterações aqui não modificam o orçamento salvo.</p><textarea class="moon3d-quote-message-text" rows="15"></textarea><div class="moon3d-quote-message-actions"><button type="button" class="btn secondary moon3d-quote-message-close">Fechar</button><button type="button" class="btn primary moon3d-quote-message-copy">Copiar mensagem</button></div>';
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+      const textarea = panel.querySelector('textarea');
+      textarea.value = buildMoon3DQuoteMessage(record);
+      const close = () => overlay.remove();
+      panel.querySelectorAll('.moon3d-quote-message-close').forEach(button => button.addEventListener('click',close));
+      overlay.addEventListener('click',event => { if (event.target === overlay) close(); });
+      panel.querySelector('.moon3d-quote-message-copy').addEventListener('click',async () => {
+        const text = textarea.value;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(text);
+          else { textarea.focus(); textarea.select(); document.execCommand('copy'); }
+          const button = panel.querySelector('.moon3d-quote-message-copy');
+          button.textContent = 'Mensagem copiada!';
+          setTimeout(() => { if (button.isConnected) button.textContent = 'Copiar mensagem'; },2200);
+        } catch (_) {
+          textarea.focus();
+          textarea.select();
+          panel.querySelector('.moon3d-quote-message-copy').textContent = 'Selecione e copie a mensagem';
+        }
+      });
+      textarea.focus();
+    };
+
+    const resolveMoon3DQuoteIndex = (row,rowIndex,headers) => {
+      const inline = Array.from(row.querySelectorAll('[onclick]')).map(element => element.getAttribute('onclick') || '').join(' ');
+      const match = inline.match(/(?:orcamentos|orcamento)\s*['"]?\s*,\s*(\d+)/i);
+      if (match && db.orcamentos[Number(match[1])]) return Number(match[1]);
+      const clientColumn = headers.findIndex(header => quoteNormalize(header).includes('cliente'));
+      const productColumn = headers.findIndex(header => quoteNormalize(header).includes('produto'));
+      const clientText = clientColumn >= 0 ? quoteNormalize(row.children[clientColumn]?.textContent) : '';
+      const productText = productColumn >= 0 ? quoteNormalize(row.children[productColumn]?.textContent) : '';
+      if (clientText || productText) {
+        const found = db.orcamentos.findIndex(item =>
+          (!clientText || quoteNormalize(quoteGet(item,['cliente','nomeCliente','nome'])) === clientText) &&
+          (!productText || quoteNormalize(quoteGet(item,['produto','nomeProduto','descricao','produtoNome'])) === productText)
+        );
+        if (found >= 0) return found;
+      }
+      return db.orcamentos[rowIndex] ? rowIndex : -1;
+    };
+
+    const applyMoon3DQuoteWhatsAppButtons = () => {
+      const page = document.querySelector('#page-title')?.textContent.trim() || '';
+      const table = document.querySelector('#data-table');
+      if (page !== 'Orçamentos' || !table || !db.orcamentos) return;
+      const headers = Array.from(table.querySelector('thead tr')?.children || []).map(cell => cell.textContent.trim());
+      Array.from(table.querySelectorAll('tbody tr')).forEach((row,rowIndex) => {
+        if (row.querySelector('.moon3d-quote-whatsapp-btn')) return;
+        const cells = Array.from(row.children);
+        let actionIndex = headers.findIndex(header => quoteNormalize(header).includes('acoes'));
+        if (actionIndex < 0) actionIndex = cells.length - 1;
+        const actionCell = cells[actionIndex];
+        if (!actionCell) return;
+        const quoteIndex = resolveMoon3DQuoteIndex(row,rowIndex,headers);
+        if (quoteIndex < 0) return;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn secondary moon3d-quote-whatsapp-btn';
+        button.textContent = '📲 Gerar mensagem WhatsApp';
+        button.addEventListener('click',event => {
+          event.preventDefault();
+          event.stopPropagation();
+          const quote = db.orcamentos[quoteIndex];
+          if (quote) openMoon3DQuoteMessage(quote);
+        });
+        actionCell.appendChild(button);
+      });
+    };
+
+    const quoteMessageStyle = document.createElement('style');
+    quoteMessageStyle.textContent = '.moon3d-quote-whatsapp-btn{margin:5px 0 0;white-space:nowrap;font-size:12px}.moon3d-quote-message-backdrop{z-index:10050;padding:18px}.moon3d-quote-message-panel{width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;display:grid;gap:12px;padding:18px}.moon3d-quote-message-panel .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.moon3d-quote-message-panel .modal-header h3{margin:0}.moon3d-quote-message-hint{margin:0;color:var(--muted,#888);font-size:12px}.moon3d-quote-message-text{width:100%;min-height:280px;resize:vertical;box-sizing:border-box;line-height:1.55}.moon3d-quote-message-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px}@media(max-width:620px){.moon3d-quote-message-backdrop{padding:10px}.moon3d-quote-message-panel{padding:14px}.moon3d-quote-whatsapp-btn{white-space:normal;width:100%}}';
+    document.head.appendChild(quoteMessageStyle);
+
     /* Vendas: aplica a ordem diretamente na tabela sempre que ela for recriada. */
     const salesStyle = document.createElement('style');
     salesStyle.textContent = `
