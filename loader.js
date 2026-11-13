@@ -422,7 +422,7 @@
       const delivery = [];
       [['Prazo de produção',['prazoProducao','prazo']],['Data de entrega',['dataEntrega']],['Forma de entrega',['formaEntrega']]].forEach(([label,keys]) => {
         let value = quoteGet(record,keys);
-        if (label === 'Data de entrega' && /^\\d{4}-\\d{2}-\\d{2}$/.test(quoteText(value))) {
+        if (label === 'Data de entrega' && /^\d{4}-\d{2}-\d{2}$/.test(quoteText(value))) {
           const parts = quoteText(value).split('-');
           value = parts[2] + '/' + parts[1] + '/' + parts[0];
         }
@@ -443,7 +443,7 @@
       const total = quoteFormatMoney(quoteGet(record,['precoProposto','valorProposto','valorTotal','preco','valor']));
       if (total) lines.push('','💰 *VALOR TOTAL: ' + total + '*');
       lines.push('','Obrigado por escolher a *Moon 3D*! 💛','Se estiver tudo certo, é só me confirmar para darmos andamento ao pedido. 😊');
-      return lines.join('\\n');
+      return lines.join('\n');
     };
 
     const openMoon3DQuoteMessage = record => {
