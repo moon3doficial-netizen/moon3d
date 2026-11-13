@@ -373,6 +373,19 @@
         else form.appendChild(section);
         quoteSyncCustom(form,hidden);
 
+        if (index !== null && db.orcamentos && db.orcamentos[index]) {
+          const generateButton = document.createElement('button');
+          generateButton.type = 'button';
+          generateButton.className = 'btn secondary moon3d-quote-generate-from-details';
+          generateButton.textContent = '📲 Gerar mensagem WhatsApp';
+          generateButton.addEventListener('click',event => {
+            event.preventDefault();
+            event.stopPropagation();
+            openMoon3DQuoteMessage(db.orcamentos[index]);
+          });
+          section.appendChild(generateButton);
+        }
+
         if (!document.getElementById('moon3d-quote-extra-style')) {
           const style = document.createElement('style');
           style.id = 'moon3d-quote-extra-style';
@@ -1144,7 +1157,6 @@
       applyMoon3DSalesOrder();
       updatePaidDeliveredVisibility();
       applyMoon3DQuoteLayout();
-      applyMoon3DQuoteWhatsAppButtons();
       applyMobileTableLabels();
       applyMoon3DExpandableCards();
       applyDashboardStockCards();
@@ -1154,7 +1166,6 @@
     applyMoon3DSalesOrder();
     updatePaidDeliveredVisibility();
     applyMoon3DQuoteLayout();
-    applyMoon3DQuoteWhatsAppButtons();
     applyMobileTableLabels();
     applyMoon3DExpandableCards();
     applyDashboardStockCards();
