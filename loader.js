@@ -144,8 +144,21 @@
         if (type !== 'vendas' && type !== 'orcamentos') return result;
 
         const form = document.getElementById('record-form');
-        const printHours = form && form.querySelector('[name="horas"]');
-        if (!form || !printHours || form.querySelector('[name="horasMaoObra"]')) return result;
+        if (!form) return result;
+
+        /* Mantém a opção de embalagem antes da prévia de preço em vendas e orçamentos. */
+        const pricePreview = form.querySelector('#price-preview');
+        if (pricePreview) {
+          const packagingField = Array.from(form.querySelectorAll('.field')).find(field =>
+            /embalagem/i.test(field.querySelector('label')?.textContent || '')
+          );
+          if (packagingField && packagingField !== pricePreview && !packagingField.contains(pricePreview)) {
+            pricePreview.parentNode.insertBefore(packagingField, pricePreview);
+          }
+        }
+
+        const printHours = form.querySelector('[name="horas"]');
+        if (!printHours || form.querySelector('[name="horasMaoObra"]')) return result;
 
         const laborField = document.createElement('div');
         laborField.className = 'field';
@@ -373,18 +386,19 @@
         else form.appendChild(section);
         quoteSyncCustom(form,hidden);
 
-        if (index !== null && db.orcamentos && db.orcamentos[index]) {
-          const generateButton = document.createElement('button');
-          generateButton.type = 'button';
-          generateButton.className = 'btn secondary moon3d-quote-generate-from-details';
-          generateButton.textContent = '📲 Gerar mensagem WhatsApp';
-          generateButton.addEventListener('click',event => {
-            event.preventDefault();
-            event.stopPropagation();
-            openMoon3DQuoteMessage(db.orcamentos[index]);
-          });
-          section.appendChild(generateButton);
-        }
+        const generateButton = document.createElement('button');
+        generateButton.type = 'button';
+        generateButton.className = 'btn secondary moon3d-quote-generate-from-details';
+        generateButton.textContent = '📲 Gerar mensagem WhatsApp';
+        generateButton.addEventListener('click',event => {
+          event.preventDefault();
+          event.stopPropagation();
+          quoteSyncCustom(form,hidden);
+          const currentValues = Object.fromEntries(new FormData(form).entries());
+          const savedRecord = index !== null && db.orcamentos && db.orcamentos[index] ? db.orcamentos[index] : {};
+          openMoon3DQuoteMessage({...savedRecord,...currentValues});
+        });
+        section.appendChild(generateButton);
 
         if (!document.getElementById('moon3d-quote-extra-style')) {
           const style = document.createElement('style');
