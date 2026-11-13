@@ -287,6 +287,7 @@
             wrap.append(label,input);
             grid.appendChild(wrap);
           });
+          if (!grid.children.length) return;
           groupBox.append(title,grid);
           section.appendChild(groupBox);
         });
