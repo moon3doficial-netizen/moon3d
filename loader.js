@@ -397,25 +397,38 @@
     }
 
     const buildMoon3DQuoteMessage = record => {
-      const lines = ['🎓 MOON 3D – ORÇAMENTO'];
-      const addLine = (label,value) => { const clean = quoteText(value); if (clean) lines.push(label + ': ' + clean); };
-      addLine('Cliente',quoteGet(record,['cliente','nomeCliente','nome']));
-      addLine('Produto',quoteGet(record,['produto','nomeProduto','descricao','produtoNome']));
-      addLine('Quantidade',quoteGet(record,['quantidade']));
+      const lines = ['🌙 *MOON 3D*','*ORÇAMENTO PERSONALIZADO*'];
+      const customer = quoteGet(record,['cliente','nomeCliente','nome']);
+      lines.push('',customer ? 'Olá, ' + customer + '! Tudo bem? 😊' : 'Olá! Tudo bem? 😊','Preparei seu orçamento:');
 
-      const dimensions = [];
+      const productLines = [];
+      const product = quoteGet(record,['produto','nomeProduto','descricao','produtoNome']);
+      if (product) productLines.push('*Produto:* ' + quoteText(product));
+      const quantity = quoteGet(record,['quantidade']);
+      if (quantity) productLines.push('*Quantidade:* ' + quoteText(quantity));
+      if (productLines.length) lines.push('','📦 *PRODUTO*',...productLines);
+
+      const specifications = [];
       [['Largura','largura'],['Altura','altura'],['Profundidade','profundidade']].forEach(([label,key]) => {
         const value = quoteText(record[key]);
-        if (value) dimensions.push(label + ': ' + value + ' cm');
+        if (value) specifications.push(label + ': ' + value + ' cm');
       });
-      if (dimensions.length) lines.push('','📏 Dimensões:',...dimensions);
-
-      const characteristics = [];
       [['Cor','cor'],['Material','material'],['Acabamento','acabamento'],['Personalização','personalizacao'],['Modelo','modelo']].forEach(([label,key]) => {
         const value = quoteText(record[key]);
-        if (value) characteristics.push(label + ': ' + value);
+        if (value) specifications.push(label + ': ' + value);
       });
-      if (characteristics.length) lines.push('','🎨 Características:',...characteristics);
+      if (specifications.length) lines.push('','📐 *ESPECIFICAÇÕES*',...specifications);
+
+      const delivery = [];
+      [['Prazo de produção',['prazoProducao','prazo']],['Data de entrega',['dataEntrega']],['Forma de entrega',['formaEntrega']]].forEach(([label,keys]) => {
+        let value = quoteGet(record,keys);
+        if (label === 'Data de entrega' && /^\\d{4}-\\d{2}-\\d{2}$/.test(quoteText(value))) {
+          const parts = quoteText(value).split('-');
+          value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
+        if (quoteText(value)) delivery.push(label + ': ' + quoteText(value));
+      });
+      if (delivery.length) lines.push('','🚚 *PRAZO E ENTREGA*',...delivery);
 
       const additional = [];
       quoteParseCustom(record.informacoesPersonalizadas).forEach(item => {
@@ -423,20 +436,14 @@
         const value = quoteText(item.value || item.valor);
         if (label && value) additional.push(label + ': ' + value);
       });
-      [['Prazo de produção',['prazoProducao','prazo']],['Data de entrega',['dataEntrega']],['Forma de entrega',['formaEntrega']],['Observações',['observacoesOrcamento','observacoes']]].forEach(([label,keys]) => {
-        let value = quoteGet(record,keys);
-        if (label === 'Data de entrega' && /^\d{4}-\d{2}-\d{2}$/.test(quoteText(value))) {
-          const parts = quoteText(value).split('-');
-          value = parts[2] + '/' + parts[1] + '/' + parts[0];
-        }
-        if (quoteText(value)) additional.push(label + ': ' + quoteText(value));
-      });
-      if (additional.length) lines.push('','📝 Informações adicionais:',...additional);
+      const observations = quoteGet(record,['observacoesOrcamento','observacoes']);
+      if (observations) additional.push('Observações: ' + quoteText(observations));
+      if (additional.length) lines.push('','📝 *INFORMAÇÕES ADICIONAIS*',...additional);
 
       const total = quoteFormatMoney(quoteGet(record,['precoProposto','valorProposto','valorTotal','preco','valor']));
-      if (total) lines.push('','💰 Valor total: ' + total);
-      lines.push('','Se estiver tudo certo, é só me confirmar para darmos andamento ao pedido! 😊');
-      return lines.join('\n');
+      if (total) lines.push('','💰 *VALOR TOTAL: ' + total + '*');
+      lines.push('','Obrigado por escolher a *Moon 3D*! 💛','Se estiver tudo certo, é só me confirmar para darmos andamento ao pedido. 😊');
+      return lines.join('\\n');
     };
 
     const openMoon3DQuoteMessage = record => {
