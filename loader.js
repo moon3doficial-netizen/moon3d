@@ -250,9 +250,9 @@
         const result = previousMoon3DOpenForm.apply(this, arguments);
         if (type !== 'orcamentos') return result;
         const form = document.getElementById('record-form');
-        if (!form || form.dataset.moon3dQuoteFields === 'yes') return result;
+        if (!form) return result;
+        form.querySelector('.moon3d-quote-extra')?.remove();
         const record = index !== null && db.orcamentos && db.orcamentos[index] ? db.orcamentos[index] : {};
-        form.dataset.moon3dQuoteFields = 'yes';
 
         const section = document.createElement('div');
         section.className = 'moon3d-quote-extra';
@@ -408,7 +408,11 @@
         if (label && value) additional.push(label + ': ' + value);
       });
       [['Prazo de produção',['prazoProducao','prazo']],['Data de entrega',['dataEntrega']],['Forma de entrega',['formaEntrega']],['Observações',['observacoesOrcamento','observacoes']]].forEach(([label,keys]) => {
-        const value = quoteGet(record,keys);
+        let value = quoteGet(record,keys);
+        if (label === 'Data de entrega' && /^\d{4}-\d{2}-\d{2}$/.test(quoteText(value))) {
+          const parts = quoteText(value).split('-');
+          value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        }
         if (quoteText(value)) additional.push(label + ': ' + quoteText(value));
       });
       if (additional.length) lines.push('','📝 Informações adicionais:',...additional);
