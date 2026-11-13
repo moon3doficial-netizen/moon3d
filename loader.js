@@ -196,6 +196,7 @@
 
     /* MOON3D_QUOTE_WHATSAPP_V1 — campos opcionais e mensagem editável para WhatsApp nos orçamentos. */
     const quoteExtraGroups = [
+      { title:'Produto', fields:[{name:'quantidade',label:'Quantidade',placeholder:'Ex.: 2'}]},
       { title:'Dimensões', fields:[
         {name:'largura',label:'Largura (cm)',placeholder:'Ex.: 20'},
         {name:'altura',label:'Altura (cm)',placeholder:'Ex.: 22'},
@@ -386,6 +387,7 @@
       const addLine = (label,value) => { const clean = quoteText(value); if (clean) lines.push(label + ': ' + clean); };
       addLine('Cliente',quoteGet(record,['cliente','nomeCliente','nome']));
       addLine('Produto',quoteGet(record,['produto','nomeProduto','descricao','produtoNome']));
+      addLine('Quantidade',quoteGet(record,['quantidade']));
 
       const dimensions = [];
       [['Largura','largura'],['Altura','altura'],['Profundidade','profundidade']].forEach(([label,key]) => {
