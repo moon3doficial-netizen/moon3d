@@ -1137,6 +1137,7 @@
       applyMoon3DSalesOrder();
       updatePaidDeliveredVisibility();
       applyMoon3DQuoteLayout();
+      applyMoon3DQuoteWhatsAppButtons();
       applyMobileTableLabels();
       applyMoon3DExpandableCards();
       applyDashboardStockCards();
@@ -1146,6 +1147,7 @@
     applyMoon3DSalesOrder();
     updatePaidDeliveredVisibility();
     applyMoon3DQuoteLayout();
+    applyMoon3DQuoteWhatsAppButtons();
     applyMobileTableLabels();
     applyMoon3DExpandableCards();
     applyDashboardStockCards();
