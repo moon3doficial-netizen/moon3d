@@ -369,7 +369,7 @@
 
         const submit = form.querySelector('button[type="submit"],input[type="submit"]');
         const actionArea = submit && (submit.closest('.form-actions, .modal-actions, .actions') || submit);
-        if (actionArea && actionArea.parentNode === form) form.insertBefore(section,actionArea);
+        if (actionArea && form.contains(actionArea)) actionArea.parentNode.insertBefore(section,actionArea);
         else form.appendChild(section);
         quoteSyncCustom(form,hidden);
 
