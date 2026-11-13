@@ -473,54 +473,8 @@
       textarea.focus();
     };
 
-    const resolveMoon3DQuoteIndex = (row,rowIndex,headers) => {
-      const inline = Array.from(row.querySelectorAll('[onclick]')).map(element => element.getAttribute('onclick') || '').join(' ');
-      const match = inline.match(/(?:orcamentos|orcamento)\s*['"]?\s*,\s*(\d+)/i);
-      if (match && db.orcamentos[Number(match[1])]) return Number(match[1]);
-      const clientColumn = headers.findIndex(header => quoteNormalize(header).includes('cliente'));
-      const productColumn = headers.findIndex(header => quoteNormalize(header).includes('produto'));
-      const clientText = clientColumn >= 0 ? quoteNormalize(row.children[clientColumn]?.textContent) : '';
-      const productText = productColumn >= 0 ? quoteNormalize(row.children[productColumn]?.textContent) : '';
-      if (clientText || productText) {
-        const found = db.orcamentos.findIndex(item =>
-          (!clientText || quoteNormalize(quoteGet(item,['cliente','nomeCliente','nome'])) === clientText) &&
-          (!productText || quoteNormalize(quoteGet(item,['produto','nomeProduto','descricao','produtoNome'])) === productText)
-        );
-        if (found >= 0) return found;
-      }
-      return db.orcamentos[rowIndex] ? rowIndex : -1;
-    };
-
-    const applyMoon3DQuoteWhatsAppButtons = () => {
-      const page = document.querySelector('#page-title')?.textContent.trim() || '';
-      const table = document.querySelector('#data-table');
-      if (page !== 'Orçamentos' || !table || !db.orcamentos) return;
-      const headers = Array.from(table.querySelector('thead tr')?.children || []).map(cell => cell.textContent.trim());
-      Array.from(table.querySelectorAll('tbody tr')).forEach((row,rowIndex) => {
-        if (row.querySelector('.moon3d-quote-whatsapp-btn')) return;
-        const cells = Array.from(row.children);
-        let actionIndex = headers.findIndex(header => quoteNormalize(header).includes('acoes'));
-        if (actionIndex < 0) actionIndex = cells.length - 1;
-        const actionCell = cells[actionIndex];
-        if (!actionCell) return;
-        const quoteIndex = resolveMoon3DQuoteIndex(row,rowIndex,headers);
-        if (quoteIndex < 0) return;
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'btn secondary moon3d-quote-whatsapp-btn';
-        button.textContent = '📲 Gerar mensagem WhatsApp';
-        button.addEventListener('click',event => {
-          event.preventDefault();
-          event.stopPropagation();
-          const quote = db.orcamentos[quoteIndex];
-          if (quote) openMoon3DQuoteMessage(quote);
-        });
-        actionCell.appendChild(button);
-      });
-    };
-
     const quoteMessageStyle = document.createElement('style');
-    quoteMessageStyle.textContent = '.moon3d-quote-whatsapp-btn{margin:5px 0 0;white-space:nowrap;font-size:12px}.moon3d-quote-message-backdrop{z-index:10050;padding:18px}.moon3d-quote-message-panel{width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;display:grid;gap:12px;padding:18px}.moon3d-quote-message-panel .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.moon3d-quote-message-panel .modal-header h3{margin:0}.moon3d-quote-message-hint{margin:0;color:var(--muted,#888);font-size:12px}.moon3d-quote-message-text{width:100%;min-height:280px;resize:vertical;box-sizing:border-box;line-height:1.55}.moon3d-quote-message-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px}@media(max-width:620px){.moon3d-quote-message-backdrop{padding:10px}.moon3d-quote-message-panel{padding:14px}.moon3d-quote-whatsapp-btn{white-space:normal;width:100%}}';
+    quoteMessageStyle.textContent = '.moon3d-quote-message-backdrop{z-index:10050;padding:18px}.moon3d-quote-message-panel{width:min(620px,100%);max-height:min(88vh,850px);overflow:auto;display:grid;gap:12px;padding:18px}.moon3d-quote-message-panel .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.moon3d-quote-message-panel .modal-header h3{margin:0}.moon3d-quote-message-hint{margin:0;color:var(--muted,#888);font-size:12px}.moon3d-quote-message-text{width:100%;min-height:280px;resize:vertical;box-sizing:border-box;line-height:1.55}.moon3d-quote-message-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px}@media(max-width:620px){.moon3d-quote-message-backdrop{padding:10px}.moon3d-quote-message-panel{padding:14px}}';
     document.head.appendChild(quoteMessageStyle);
 
     /* Vendas: aplica a ordem diretamente na tabela sempre que ela for recriada. */
