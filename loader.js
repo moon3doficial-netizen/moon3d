@@ -31,6 +31,42 @@
     script.textContent = js.replaceAll('logo-moon3d-completa.jpg', 'logo-moon3d-completa.webp');
 
     document.body.appendChild(script);
+
+    /* Numeração contínua dos pedidos: elimina lacunas após exclusões e mantém a lista em ordem. */
+    const normalizeMoon3DSaleOrders = () => {
+      if (!Array.isArray(db.vendas)) return false;
+      const ordered = db.vendas.map((sale, index) => {
+        const rawOrder = String(sale && sale.ordem != null ? sale.ordem : '').trim();
+        const numericOrder = /^\\d+$/.test(rawOrder) ? Number(rawOrder) : Number.MAX_SAFE_INTEGER;
+        return { sale, index, numericOrder };
+      }).sort((a, b) => a.numericOrder - b.numericOrder || a.index - b.index);
+
+      let changed = false;
+      ordered.forEach((entry, index) => {
+        const nextOrder = String(index + 1).padStart(4, '0');
+        if (String(entry.sale.ordem || '') !== nextOrder) changed = true;
+        entry.sale.ordem = nextOrder;
+      });
+      db.vendas = ordered.map(entry => entry.sale);
+      return changed;
+    };
+
+    const originalMoon3DSave = window.save;
+    if (typeof originalMoon3DSave === 'function') {
+      window.save = function () {
+        normalizeMoon3DSaleOrders();
+        return originalMoon3DSave.apply(this, arguments);
+      };
+    }
+
+    if (typeof views !== 'undefined' && typeof views.vendas === 'function') {
+      const originalMoon3DSalesView = views.vendas;
+      views.vendas = function () {
+        const changed = normalizeMoon3DSaleOrders();
+        if (changed && typeof originalMoon3DSave === 'function') originalMoon3DSave.call(this, true);
+        return originalMoon3DSalesView.apply(this, arguments);
+      };
+    }
     /* Quadro simples de atividades no Dashboard: itens concluídos são removidos, sem histórico. */
     db.atividades = Array.isArray(db.atividades) ? db.atividades : [];
     const renderMoon3DTasks = () => {
